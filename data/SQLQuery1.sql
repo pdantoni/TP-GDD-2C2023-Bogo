@@ -101,11 +101,6 @@ CREATE TABLE BOGO.Alquiler
 	inquilino INT, --fk
 )
 
-drop table bogo.alquiler
-
-ALTER TABLE BOGO.Alquiler
-	ADD estado_alquiler INT
-
 CREATE TABLE BOGO.Tipo_Inmueble
 ( 
     codigo_tipo_inmueble INT PRIMARY KEY IDENTITY (1,1), 
@@ -275,7 +270,7 @@ ALTER TABLE BOGO.Localidad
 	ADD FOREIGN KEY(provincia) REFERENCES BOGO.Provincia(codigo_provincia);
 GO
 
--- 23 FK 
+-- 23 FK --ok
 ALTER TABLE BOGO.Pago_de_alquiler
     ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
 		FOREIGN KEY(medio_de_pago) REFERENCES BOGO.Medio_de_pago(codigo_medio_de_pago);
@@ -286,7 +281,7 @@ ALTER TABLE BOGO.Periodo
     ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler);
 GO
 
--- 25 FK 
+-- 25 FK -- ok
 ALTER TABLE BOGO.Inquilino
     ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
@@ -311,6 +306,7 @@ Alter Table BOGO.Agente_Inmobiliario
     FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 go
 
+
 Alter Table BOGO.Venta
     Add Foreign Key (anuncio) References BOGO.Anuncio(numero_anuncio),
     Foreign key (comprador) References BOGO.Comprador(codigo_comprador),
@@ -322,7 +318,7 @@ Alter Table BOGO.Propietario
   go
 
 Alter Table BOGO.Barrio
-    Add Foreign Key(localidad) References BOGO.Localidad(codigo_localidad);
+    Add Foreign Key(localidad) References BOGO.Barrio(codigo_localidad);
 go
 
 Alter Table BOGO.Anuncio
@@ -330,9 +326,32 @@ Alter Table BOGO.Anuncio
     Foreign key(tipo_operacion) References BOGO.Operacion(codigo_operacion),
     Foreign key(inmueble) References BOGO.Inmueble(numero_de_inmueble),
     Foreign key(moneda) References BOGO.Moneda(codigo_moneda),
-    Foreign key(tipo_periodo) References BOGO.Tipo_periodo(codigo_tipo_periodo),
+    Foreign key(tipo_periodo) References BOGO.Tipo_periodo(tipo_periodo),
     Foreign key(estado_anuncio) References BOGO.Estado_anuncio(codigo_estado);
 go
 
+--------------------------------------------------
 
+IF EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'BOGO')
+BEGIN
+   DECLARE @sql NVARCHAR(MAX) = N'';
+
+
+	SELECT @sql += N'
+	ALTER TABLE [' + OBJECT_SCHEMA_NAME(fk.parent_object_id) + N'].[' + OBJECT_NAME(fk.parent_object_id) + N']
+	DROP CONSTRAINT [' + fk.name + N'];'
+	FROM sys.foreign_keys AS fk
+	JOIN sys.tables AS t ON fk.parent_object_id = t.object_id
+	WHERE SCHEMA_NAME(t.schema_id) = N'BOGO';
+
+	SELECT @sql += N'
+	DROP TABLE [' + SCHEMA_NAME(schema_id) + N'].[' + name + N'];'
+	FROM sys.tables
+	WHERE SCHEMA_NAME(schema_id) = N'BOGO';
+
+	SET @sql += N'DROP SCHEMA [BOGO];';
+
+	EXEC sp_executesql @sql;
+END
+GO
 
