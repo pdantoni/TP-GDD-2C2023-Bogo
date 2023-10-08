@@ -24,7 +24,7 @@ CREATE TABLE BOGO.Pago_por_venta
 
 CREATE TABLE BOGO.Comprador
 ( 
-	codigo_comrpador INT PRIMARY KEY IDENTITY(1,1), 
+	codigo_comprador INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150),
 	apellido VARCHAR(150),
 	numero_de_DNI VARCHAR(150),
@@ -115,7 +115,7 @@ CREATE TABLE BOGO.Estado
 )
 
 --23
-CREATE TABLE BOGO.PagoDeAlquiler
+CREATE TABLE BOGO.Pago_de_alquiler
 ( 
     codigo_pago_de_alquiler INT PRIMARY KEY IDENTITY(1,1),
     alquiler INT,
@@ -152,20 +152,20 @@ CREATE TABLE BOGO.Inquilino
 )
 
 --26
-CREATE TABLE BOGO.EstadoAlquiler
+CREATE TABLE BOGO.Estado_alquiler
 ( 
     codigo_estado_alquiler INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150), 
 )
 
 --27
-CREATE TABLE BOGO.MedioDePAgo
+CREATE TABLE BOGO.Medio_de_pago
 ( 
     codigo_medio_de_pago INT PRIMARY KEY IDENTITY(1,1),
     nombre VARCHAR(150), 
 )
 
-create table BOGO.Agente_Inmobiliario(
+create table BOGO.Agente_inmobiliario(
 codigo_agente int PRIMARY KEY identity(1,1),
 nombre Varchar(30),
 apellido Varchar(30),
@@ -249,17 +249,17 @@ ALTER TABLE BOGO.Pago_por_venta
 GO
 
 ALTER TABLE BOGO.Comprador
-	ADD FOREIGN KEY(localidad) REFERENCES BOGO.localidad(codiog_localidad);
+	ADD FOREIGN KEY(localidad) REFERENCES BOGO.localidad(codigo_localidad);
 GO
 
 ALTER TABLE BOGO.Localidad
-	ADD FOREIGN KEY(provincia) REFERENCES BOGO.Barrio(codigo_barrio);
+	ADD FOREIGN KEY(provincia) REFERENCES BOGO.Provincia(codigo_provincia);
 GO
 
 -- 23 FK
-ALTER TABLE BOGO.PagoDeAlquiler
+ALTER TABLE BOGO.Pago_de_alquiler
     ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
-    FOREIGN KEY(medio_de_pago) REFERENCES BOGO.MedioDePago(codigo_medio_de_pago);
+		FOREIGN KEY(medio_de_pago) REFERENCES BOGO.Medio_de_pago(codigo_medio_de_pago);
 GO
 
 -- 24 FK
@@ -268,6 +268,21 @@ ALTER TABLE BOGO.Periodo
 GO
 
 -- 25 FK
-ALTER TABLE BOGO.PagoDeAlquiler
+ALTER TABLE BOGO.Inquilino
     ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
+GO
+
+ALTER TABLE BOGO.Inmueble
+    ADD FOREIGN KEY(tipo_inmueble) REFERENCES BOGO.Tipo_Inmueble(codigo_tipo_inmueble),
+        FOREIGN KEY(propietario) REFERENCES BOGO.Propietario(codigo_propietario),
+        FOREIGN KEY(barrio) REFERENCES BOGO.Barrio(codigo_barrio),
+        FOREIGN KEY(disposicion) REFERENCES BOGO.Disposicion(codigo_disposicion),
+        FOREIGN KEY(orientacion) REFERENCES BOGO.Orientacion(codigo_orientacion),
+        FOREIGN KEY(estado) REFERENCES BOGO.Estado(codigo_estado);
+GO
+
+ALTER TABLE BOGO.Alquiler
+    ADD FOREIGN KEY(anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
+        FOREIGN KEY(inquilino) REFERENCES BOGO.Inquilino(codigo_inquilino),
+        FOREIGN KEY(estado_alquiler) REFERENCES BOGO.Estado_alquiler(codigo_estado_alquiler);
 GO
