@@ -334,6 +334,68 @@ Alter Table BOGO.Anuncio
     Foreign key(estado_anuncio) References BOGO.Estado_anuncio(codigo_estado);
 go
 
+------------- Funciones para stored procedures ----------------
+---------------------------------------------------------------
+-- OBTENER_ID_SUCURSAL --> Retorna el ID de una sucursal dada su dirección
+ALTER FUNCTION BOGO.OBTENER_ID_PROVINCIA(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_provincia DECIMAL(18,0);
+	SELECT @id_provincia = codigo_provincia FROM BOGO.provincia WHERE nombre = @nombre;
+	RETURN @id_provincia;
+END
+GO
+exec BOGO.OBTENER_ID_PROVINCIA 'Salta';
+go
+
 ------------- Stored procedures ----------------
 ------------------------------------------------
+
+-- PROCEDURE PROVINCIA OK
+CREATE PROCEDURE BOGO.migrar_Provincia AS
+BEGIN
+	INSERT INTO BOGO.Provincia (nombre)
+		SELECT DISTINCT SUCURSAL_PROVINCIA FROM gd_esquema.Maestra
+		WHERE sucursal_provincia IS NOT NULL
+END
+GO
+EXEC BOGO.migrar_Provincia;
+GO
+
+-- PROCEDURE CARACTERISTICA
+-- preguntar, es todo null en INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_CALEFACCION, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI
+
+-- PROCEDURE LOCALIDAD ok
+-- revisar codigo que empeiza en 3
+CREATE PROCEDURE BOGO.migrar_Localidad AS
+BEGIN
+	INSERT INTO BOGO.Localidad (nombre, provincia)
+		SELECT DISTINCT SUCURSAL_LOCALIDAD, BOGO.OBTENER_ID_PROVINCIA(sucursal_provincia) FROM gd_esquema.Maestra
+		WHERE sucursal_localidad IS NOT NULL
+END
+GO
+EXEC BOGO.migrar_Localidad;
+GO
+
+
+
+
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+-- SCRIPT DE UNIONES DE TABLAS EJEMPLO
+--Script de union de monedas en todas las tablas--
+Select distinct INMUEBLE_CARACTERISTICA_CABLE from gd_esquema.Maestra
+UNION 
+Select distinct INMUEBLE_CARACTERISTICA_CALEFACCION from gd_esquema.Maestra
+UNION 
+Select distinct INMUEBLE_CARACTERISTICA_GAS from gd_esquema.Maestra
+
+
+--------------------------------------------------------------------
+-- TABLA MAESTRA
+Use GD2C2023
+select SUCURSAL_PROVINCIA, SUCURSAL_LOCALIDAD FROM gd_esquema.Maestra
+where SUCURSAL_LOCALIDAD is not null
+
+
 
