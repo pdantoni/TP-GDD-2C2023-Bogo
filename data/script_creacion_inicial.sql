@@ -1,4 +1,4 @@
-
+USE [GD2C2023]
 ------------ Creación del esquema ---------------
 ------------------------------------------------
 CREATE SCHEMA BOGO;
@@ -334,5 +334,6 @@ Alter Table BOGO.Anuncio
     Foreign key(estado_anuncio) References BOGO.Estado_anuncio(codigo_estado);
 go
 
-
+------------- Stored procedures ----------------
+------------------------------------------------
 
