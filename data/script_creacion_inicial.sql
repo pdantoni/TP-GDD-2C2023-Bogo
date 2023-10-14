@@ -256,7 +256,7 @@ CREATE TABLE BOGO.Caracteristica_por_inmueble
 )
 
 ------------ Creacion de FK
-
+----------------------------------------------
 ALTER TABLE BOGO.sucursal
 	ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
