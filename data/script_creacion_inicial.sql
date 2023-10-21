@@ -9,6 +9,7 @@ USE [GD2C2023]
 -- PARTE 7: ejecución de los procedures para migrar los datos
 -- PARTE 8: creación de vistas
 
+
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 1                                            --
 ---------------------------------------------------------------------------------------------------
@@ -113,12 +114,13 @@ IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME
   DROP SCHEMA BOGO
 GO
 
+
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 2                                            --
 ---------------------------------------------------------------------------------------------------
 
 -- CREACION DEL ESQUEMA
-CREATE SCHEMA BOGO
+CREATE SCHEMA BOGO;
 GO
 
 -- CREACION DE TABLAS
@@ -126,98 +128,98 @@ GO
 CREATE TABLE BOGO.Provincia
 ( 
 	codigo_provincia INT PRIMARY KEY IDENTITY(1,1), 
-    nombre VARCHAR(150),
-)GO
+    nombre VARCHAR(150)
+)
 
 --2
 CREATE TABLE BOGO.Caracteristica
 ( 
 	codigo_caracteristica INT PRIMARY KEY IDENTITY(1,1), 
-    nombre VARCHAR(150),
-)GO
+	nombre VARCHAR(150)
+)
 
 --3
 CREATE TABLE BOGO.Localidad
 ( 
 	codigo_localidad INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150),
-	provincia INT, --fk
-)GO
+	provincia INT --fk
+)
 
 --4
 CREATE TABLE BOGO.Barrio(
-	codigo_barrio int Primary key identity(1,1),
-	nombre varchar(30),
-	localidad int --fk
-)GO
+	codigo_barrio INT PRIMARY KEY IDENTITY(1,1),
+	nombre VARCHAR(30),
+	localidad INT --fk
+)
 
 --5
 CREATE TABLE BOGO.Tipo_Inmueble
 ( 
     codigo_tipo_inmueble INT PRIMARY KEY IDENTITY (1,1), 
     nombre VARCHAR(150), 
-)GO
+)
 
 --6
 CREATE TABLE BOGO.Disposicion
 ( 
     codigo_disposicion INT PRIMARY KEY IDENTITY(1,1),
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --7
 CREATE TABLE BOGO.Orientacion
 ( 
     codigo_orientacion INT PRIMARY KEY IDENTITY(1,1), 
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --8
 CREATE TABLE BOGO.Estado
 ( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --9
 CREATE TABLE BOGO.Estado_alquiler
 ( 
     codigo_estado_alquiler INT PRIMARY KEY IDENTITY(1,1), 
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --10
 CREATE TABLE BOGO.Medio_de_pago
 ( 
     codigo_medio_de_pago INT PRIMARY KEY IDENTITY(1,1),
-    nombre VARCHAR(150), 
-)GO
+    nombre VARCHAR(150) 
+)
 
 --11
 CREATE TABLE BOGO.Tipo_operacion(
 	codigo_tipo_operacion INT PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(30)
-)GO
+)
 
 --12
 CREATE TABLE BOGO.Tipo_periodo
 ( 
     codigo_tipo_periodo INT PRIMARY KEY IDENTITY (1,1), 
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --13
 CREATE TABLE BOGO.Estado_anuncio
 ( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
-    descripcion VARCHAR(150), 
-)GO
+    descripcion VARCHAR(150)
+)
 
 --14
 CREATE TABLE BOGO.Moneda(
 	codigo_moneda INT PRIMARY KEY IDENTITY(1,1),
 	descripcion VARCHAR(30)
-)GO
+)
 
 --15
 CREATE TABLE BOGO.Caracteristica_por_inmueble
@@ -225,7 +227,7 @@ CREATE TABLE BOGO.Caracteristica_por_inmueble
 	codigo_caracteristica INT,
 	numero_de_inmueble INT,
 	PRIMARY KEY (codigo_caracteristica, numero_de_inmueble)
-)GO
+)
 
 --16
 CREATE TABLE BOGO.Sucursal
@@ -234,8 +236,8 @@ CREATE TABLE BOGO.Sucursal
     telefono VARCHAR(20), 
     direccion VARCHAR(150),
     nombre VARCHAR(150),
-	localidad INT, -- fk
-)GO
+	localidad INT -- fk
+)
 
 --17
 CREATE TABLE BOGO.Propietario(
@@ -248,7 +250,7 @@ CREATE TABLE BOGO.Propietario(
 	telefono VARCHAR(30),
 	fecha_nacimiento DATETIME,
 	mail VARCHAR(30)
-)GO
+)
 
 --18
 CREATE TABLE BOGO.Comprador
@@ -262,7 +264,7 @@ CREATE TABLE BOGO.Comprador
 	telefono VARCHAR(30),
 	fecha_nacimiento DATETIME,
 	mail VARCHAR(30)
-)GO
+)
 
 --19
 CREATE TABLE BOGO.Agente_inmobiliario(
@@ -276,7 +278,7 @@ CREATE TABLE BOGO.Agente_inmobiliario(
 	telefono VARCHAR(30),
 	fecha_nacimiento DATETIME,
 	mail VARCHAR
-)GO
+)
 
 --20
 CREATE TABLE BOGO.Inquilino
@@ -290,7 +292,7 @@ CREATE TABLE BOGO.Inquilino
     telefono VARCHAR(150),
     fecha_nacimiento datetime,
     mail VARCHAR(150) 
-)GO
+)
 
 --21
 CREATE TABLE BOGO.Pago_por_venta
@@ -300,8 +302,8 @@ CREATE TABLE BOGO.Pago_por_venta
     cotizacion FLOAT,
 	venta INT, --fk
 	moneda INT, --fk
-	medio_de_pago INT, --fk
-)GO
+	medio_de_pago INT --fk
+)
 
 --22
 CREATE TABLE BOGO.Inmueble
@@ -319,8 +321,8 @@ CREATE TABLE BOGO.Inmueble
 	barrio INT, --fk
 	disposicion INT, --fk
 	orientacion INT, --fk
-	estado INT, --fk
-)GO
+	estado INT --fk
+)
 
 --23
 CREATE TABLE BOGO.Anuncio(
@@ -335,7 +337,7 @@ CREATE TABLE BOGO.Anuncio(
 	estado_anuncio INT, --fk
 	fecha_finalizacion DATETIME,
 	costo_publicacion FLOAT
-)GO
+)
 
 --24
 CREATE TABLE BOGO.Venta(
@@ -346,7 +348,7 @@ CREATE TABLE BOGO.Venta(
 	precio_venta FLOAT,
 	moneda INT, --fk
 	comision_inmobiliaria FLOAT
-)GO
+)
 
 --25
 CREATE TABLE BOGO.Alquiler
@@ -356,11 +358,12 @@ CREATE TABLE BOGO.Alquiler
     fecha_de_fin DATETIME,
     duracion INT,
     deposito FLOAT,
-    comision FLOAT,
-    gastos_de_averiguaciones FLOAT,
+	comision FLOAT,
+	gastos_de_averiguaciones FLOAT,
 	anuncio INT, --fk
 	inquilino INT, --fk
-)GO
+	estado_alquiler INT --fk
+)
 
 --26
 CREATE TABLE BOGO.Periodo
@@ -370,7 +373,7 @@ CREATE TABLE BOGO.Periodo
     numero_periodo_de_fin INT,
     precio FLOAT,
 	alquiler INT --fk
-)GO
+)
 
 --27
 CREATE TABLE BOGO.Pago_alquiler
@@ -384,7 +387,8 @@ CREATE TABLE BOGO.Pago_alquiler
     fecha_de_fin_periodo_de_pago datetime,
     importe FLOAT,
     medio_de_pago INT --fk
-)GO
+)
+
 
 -- CREACION DE PKs COMPUESTAS
 ALTER TABLE BOGO.Localidad
@@ -392,14 +396,14 @@ ALTER TABLE BOGO.Localidad
 GO
 
 ALTER TABLE BOGO.Barrio
-    ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
+	ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
 
 ALTER TABLE BOGO.sucursal
 	ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
 
-Alter Table BOGO.Propietario 
+ALTER TABLE BOGO.Propietario 
 	ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
 
@@ -408,56 +412,56 @@ ALTER TABLE BOGO.Comprador
 GO
 
 ALTER TABLE BOGO.Agente_Inmobiliario
-    ADD FOREIGN KEY (sucursal) REFERENCES BOGO.Sucursal(codigo_sucursal),
-    FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
+	ADD FOREIGN KEY (sucursal) REFERENCES BOGO.Sucursal(codigo_sucursal),
+		FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
 
 ALTER TABLE BOGO.Inquilino
-    ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
+	ADD FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad);
 GO
 
 ALTER TABLE BOGO.Pago_por_venta
-	ADD FOREIGN KEY(venta) REFERENCES BOGO.venta(codigo_de_venta),
+	ADD FOREIGN KEY(venta) REFERENCES BOGO.venta(codigo_venta),
 		FOREIGN KEY(moneda) REFERENCES BOGO.moneda(codigo_moneda),
 		FOREIGN KEY(medio_de_pago) REFERENCES BOGO.medio_de_pago(codigo_medio_de_pago);
 GO
 
 ALTER TABLE BOGO.Inmueble
-    ADD FOREIGN KEY(tipo_inmueble) REFERENCES BOGO.Tipo_Inmueble(codigo_tipo_inmueble),
-        FOREIGN KEY(propietario) REFERENCES BOGO.Propietario(codigo_propietario),
-        FOREIGN KEY(barrio) REFERENCES BOGO.Barrio(codigo_barrio),
-        FOREIGN KEY(disposicion) REFERENCES BOGO.Disposicion(codigo_disposicion),
-        FOREIGN KEY(orientacion) REFERENCES BOGO.Orientacion(codigo_orientacion),
-        FOREIGN KEY(estado) REFERENCES BOGO.Estado(codigo_estado);
+	ADD FOREIGN KEY(tipo_inmueble) REFERENCES BOGO.Tipo_Inmueble(codigo_tipo_inmueble),
+		FOREIGN KEY(propietario) REFERENCES BOGO.Propietario(codigo_propietario),
+		FOREIGN KEY(barrio) REFERENCES BOGO.Barrio(codigo_barrio),
+		FOREIGN KEY(disposicion) REFERENCES BOGO.Disposicion(codigo_disposicion),
+		FOREIGN KEY(orientacion) REFERENCES BOGO.Orientacion(codigo_orientacion),
+		FOREIGN KEY(estado) REFERENCES BOGO.Estado(codigo_estado);
 GO
 
 ALTER TABLE BOGO.Anuncio
-    ADD FOREIGN KEY(agente_inmobiliario) REFERENCES BOGO.Agente_Inmobiliario(codigo_agente),
-    FOREIGN KEY(tipo_operacion) REFERENCES BOGO.Operacion(codigo_operacion),
-    FOREIGN KEY(inmueble) REFERENCES BOGO.Inmueble(numero_de_inmueble),
-    FOREIGN KEY(moneda) REFERENCES BOGO.Moneda(codigo_moneda),
-    FOREIGN KEY(tipo_periodo) REFERENCES BOGO.Tipo_periodo(codigo_tipo_periodo),
-    FOREIGN KEY(estado_anuncio) REFERENCES BOGO.Estado_anuncio(codigo_estado);
+	ADD FOREIGN KEY(agente_inmobiliario) REFERENCES BOGO.Agente_Inmobiliario(codigo_agente),
+		FOREIGN KEY(tipo_operacion) REFERENCES BOGO.Tipo_operacion(codigo_tipo_operacion),
+		FOREIGN KEY(inmueble) REFERENCES BOGO.Inmueble(numero_de_inmueble),
+		FOREIGN KEY(moneda) REFERENCES BOGO.Moneda(codigo_moneda),
+		FOREIGN KEY(tipo_periodo) REFERENCES BOGO.Tipo_periodo(codigo_tipo_periodo),
+		FOREIGN KEY(estado_anuncio) REFERENCES BOGO.Estado_anuncio(codigo_estado);
 GO
 
 ALTER TABLE BOGO.Venta
-    ADD FOREIGN KEY(anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
-    FOREIGN KEY(comprador) REFERENCES BOGO.Comprador(codigo_comprador),
-    FOREIGN KEY(moneda) REFERENCES BOGO.Moneda(codigo_moneda)
+	ADD FOREIGN KEY(anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
+		FOREIGN KEY(comprador) REFERENCES BOGO.Comprador(codigo_comprador),
+		FOREIGN KEY(moneda) REFERENCES BOGO.Moneda(codigo_moneda)
 GO
 
 ALTER TABLE BOGO.Alquiler
-    ADD FOREIGN KEY(anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
-        FOREIGN KEY(inquilino) REFERENCES BOGO.Inquilino(codigo_inquilino),
-        FOREIGN KEY(estado_alquiler) REFERENCES BOGO.Estado_alquiler(codigo_estado_alquiler);
+	ADD FOREIGN KEY(anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
+		FOREIGN KEY(inquilino) REFERENCES BOGO.Inquilino(codigo_inquilino),
+		FOREIGN KEY(estado_alquiler) REFERENCES BOGO.Estado_alquiler(codigo_estado_alquiler);
 GO
 
 ALTER TABLE BOGO.Periodo
-    ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler);
+	ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler);
 GO
 
-ALTER TABLE BOGO.Pago_de_alquiler
-    ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
+ALTER TABLE BOGO.Pago_alquiler
+	ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
 		FOREIGN KEY(medio_de_pago) REFERENCES BOGO.Medio_de_pago(codigo_medio_de_pago);
 GO
 
@@ -474,8 +478,8 @@ BEGIN
 	RETURN @id_provincia;
 END
 GO
-exec BOGO.OBTENER_ID_PROVINCIA 'Salta';
-go
+
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
@@ -485,8 +489,9 @@ go
 CREATE PROCEDURE BOGO.migrar_Provincia AS
 BEGIN
 	INSERT INTO BOGO.Provincia (nombre)
-		SELECT DISTINCT SUCURSAL_PROVINCIA FROM gd_esquema.Maestra
-		WHERE sucursal_provincia IS NOT NULL
+		SELECT DISTINCT SUCURSAL_PROVINCIA FROM gd_esquema.Maestra WHERE sucursal_provincia IS NOT NULL
+		UNION
+		SELECT DISTINCT INMUEBLE_PROVINCIA FROM gd_esquema.Maestra WHERE inmueble_provincia IS NOT NULL
 END
 GO
 EXEC BOGO.migrar_Provincia;
@@ -496,17 +501,24 @@ GO
 -- preguntar, es todo null en INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_CALEFACCION, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI
 
 -- PROCEDURE LOCALIDAD ok
--- revisar codigo que empeiza en 3
 CREATE PROCEDURE BOGO.migrar_Localidad AS
 BEGIN
 	INSERT INTO BOGO.Localidad (nombre, provincia)
-		SELECT DISTINCT SUCURSAL_LOCALIDAD, BOGO.OBTENER_ID_PROVINCIA(sucursal_provincia) FROM gd_esquema.Maestra
-		WHERE sucursal_localidad IS NOT NULL
+		SELECT DISTINCT SUCURSAL_LOCALIDAD, BOGO.OBTENER_ID_PROVINCIA(sucursal_provincia) FROM gd_esquema.Maestra WHERE sucursal_localidad IS NOT NULL
+		UNION
+		SELECT DISTINCT INMUEBLE_LOCALIDAD, BOGO.OBTENER_ID_PROVINCIA(inmueble_provincia) FROM gd_esquema.Maestra WHERE inmueble_localidad IS NOT NULL
 END
 GO
 EXEC BOGO.migrar_Localidad;
 GO
 
+CREATE PROCEDURE BOGO.migrar_Barrio AS
+BEGIN
+	INSERT INTO BOGO.Barrio (nombre, localidad)
+		SELECT DISTINCT INMUEBLE_BARRIO, 
+		WHERE
+END
+GO
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
@@ -520,6 +532,7 @@ GO
 ---------------------------------------------------------------------------------------------------
 
 -- CREACIÓN DE ÍNDICES
+-- sobre fks (chequear)
 
 
 ---------------------------------------------------------------------------------------------------
