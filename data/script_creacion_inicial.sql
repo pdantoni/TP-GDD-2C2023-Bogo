@@ -569,7 +569,6 @@ BEGIN
 END
 GO
 
-
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
 ---------------------------------------------------------------------------------------------------
@@ -584,10 +583,20 @@ BEGIN
 END
 GO
 
--- PROCEDURE CARACTERISTICA
--- preguntar, es todo null en INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_CALEFACCION, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI
+CREATE PROCEDURE BOGO.migrar_Caracteristica AS
+BEGIN
+	INSERT INTO BOGO.Caracteristica (nombre)
+		SELECT DISTINCT INMUEBLE_CARACTERISTICA_CABLE FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_CABLE IS NOT NULL
+		UNION
+		SELECT DISTINCT INMUEBLE_CARACTERISTICA_CALEFACCION FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_CALEFACCION IS NOT NULL
+		UNION
+		SELECT DISTINCT INMUEBLE_CARACTERISTICA_GAS FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_GAS IS NOT NULL
+		UNION
+		SELECT DISTINCT INMUEBLE_CARACTERISTICA_WIFI FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_WIFI IS NOT NULL
+END
+GO
 
--- PROCEDURE LOCALIDAD ok
+
 CREATE PROCEDURE BOGO.migrar_Localidad AS
 BEGIN
 	INSERT INTO BOGO.Localidad (nombre, provincia)
@@ -664,8 +673,8 @@ GO
 
 CREATE PROCEDURE BOGO.Migrar_Estado_anuncio AS
 BEGIN
-	INSERT INTO BOGO.Estado_anuncio (descripcion)
-		SELECT DISTINCT	ANUNCIO_ESTADO FROM gd_esquema.Maestra WHERE ANUNCIO_ESTADO IS NOT NULL
+	INSERT INTO BOGO.Estado_anuncio (numero_anuncio, descripcion)
+		SELECT DISTINCT	ANUNCIO_CODIGO, ANUNCIO_ESTADO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL
 END
 GO
 
@@ -680,12 +689,10 @@ BEGIN
 END
 GO
 
--- CREATE PROCEDURE BOGO.Caracteristica_por_inmueble AS
-
 CREATE PROCEDURE BOGO.Migrar_Sucursal AS
 BEGIN
-	INSERT INTO BOGO.Sucursal (telefono, direccion, nombre, localidad)
-		SELECT DISTINCT	SUCURSAL_TELEFONO, SUCURSAL_DIRECCION, SUCURSAL_NOMBRE, BOGO.OBTENER_ID_LOCALIDAD(sucursal_localidad) FROM gd_esquema.Maestra 
+	INSERT INTO BOGO.Sucursal (telefono, direccion, nombre, localidad, provincia)
+		SELECT DISTINCT	SUCURSAL_TELEFONO, SUCURSAL_DIRECCION, SUCURSAL_NOMBRE, BOGO.OBTENER_ID_LOCALIDAD(sucursal_localidad), BOGO.OBTENER_ID_PROVINCIA(sucursal_provincia) FROM gd_esquema.Maestra 
 			WHERE SUCURSAL_NOMBRE IS NOT NULL
 END
 GO
@@ -732,8 +739,9 @@ GO
 
 CREATE PROCEDURE BOGO.Migrar_Inmueble AS
 BEGIN
-	INSERT INTO BOGO.Inmueble (descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia)
+	INSERT INTO BOGO.Inmueble (numero_de_inmueble, descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia)
 		SELECT DISTINCT	
+			INMUEBLE_CODIGO,
 			INMUEBLE_DESCRIPCION, 
 			INMUEBLE_DIRECCION, 
 			INMUEBLE_CANT_AMBIENTES, 
@@ -747,6 +755,7 @@ BEGIN
 			BOGO.OBTENER_ID_ORIENTACION(INMUEBLE_ORIENTACION),
 			BOGO.OBTENER_ID_ESTADO(INMUEBLE_ESTADO),
 			BOGO.OBTENER_ID_PROVINCIA(inmueble_provincia)
+			-- TODO y las caracteristicas?
 			FROM gd_esquema.Maestra 
 			WHERE INMUEBLE_NOMBRE IS NOT NULL
 END
@@ -769,12 +778,28 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE BOGO.Migrar_Venta AS
+BEGIN
+	INSERT INTO BOGO.Venta (codigo_venta, comision_inmobiliaria, fecha_de_venta, precio_venta, moneda)
+		SELECT DISTINCT	
+			VENTA_CODIGO, 
+			VENTA_COMISION, 
+			VENTA_FECHA, 
+			VENTA_PRECIO_VENTA,
+			VENTA_MONEDA
+			FROM gd_esquema.Maestra 
+			WHERE VENTA_CODIGO IS NOT NULL
+END
+GO
+
 CREATE PROCEDURE BOGO.Migrar_Alquiler AS
 BEGIN
-	INSERT INTO BOGO.Alquiler (fecha_de_inicio, fecha_de_fin, deposito, comision, gastos_de_averiguaciones, estado_alquiler)
+	INSERT INTO BOGO.Alquiler (codigo_alquiler, fecha_de_inicio, fecha_de_fin, periodos, deposito, comision, gastos_de_averiguaciones, estado_alquiler)
 		SELECT DISTINCT	
+			ALQUILER_CODIGO,
 			ALQUILER_FECHA_INICIO, 
 			ALQUILER_FECHA_FIN, 
+			ALQUILER_CANT_PERIODOS,
 			ALQUILER_DEPOSITO, 
 			ALQUILER_COMISION,
 			ALQUILER_GASTOS_AVERIGUA,
@@ -787,16 +812,17 @@ GO
 -- REVISAR
 CREATE PROCEDURE BOGO.Migrar_Periodo AS
 BEGIN
-	INSERT INTO BOGO.Periodo (numero_periodo_de_inicio, numero_periodo_de_fin, precio, alquiler)
-		SELECT DISTINCT	DETALLE_ALQ_NRO_PERIODO_INI, DETALLE_ALQ_NRO_PERIODO_FIN FROM gd_esquema.Maestra 
+	INSERT INTO BOGO.Periodo (numero_periodo_de_inicio, numero_periodo_de_fin, precio)
+		SELECT DISTINCT	DETALLE_ALQ_NRO_PERIODO_INI, DETALLE_ALQ_NRO_PERIODO_FIN, DETALLE_ALQ_PRECIO FROM gd_esquema.Maestra 
 			WHERE INMUEBLE_NOMBRE IS NOT NULL
 END
 GO
 
 CREATE PROCEDURE BOGO.Migrar_Pago_alquiler AS
 BEGIN
-	INSERT INTO BOGO.Pago_alquiler (alquiler, fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago)
-		SELECT DISTINCT	PAGO_ALQUILER_CODIGO, 
+	INSERT INTO BOGO.Pago_alquiler (codigo_pago_alquiler, fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago)
+		SELECT DISTINCT	
+		PAGO_ALQUILER_CODIGO, 
 		PAGO_ALQUILER_FECHA,
 		PAGO_ALQUILER_NRO_PERIODO,
 		PAGO_ALQUILER_DESC,
@@ -831,6 +857,8 @@ select * from bogo.TIPO_OPERACION
 
 --  EJECUCIÓN DE LOS PROCEDURES PARA MIGRAR LOS DATOS
 EXEC BOGO.migrar_Provincia;
+GO
+EXEC BOGO.migrar_Caracteristica;
 GO
 EXEC BOGO.migrar_Localidad;
 GO
@@ -871,6 +899,8 @@ GO
 EXEC BOGO.Migrar_Inmueble
 GO
 EXEC BOGO.Migrar_Anuncio
+GO
+EXEC BOGO.Migrar_Venta
 GO
 EXEC BOGO.Migrar_Alquiler
 GO
