@@ -101,7 +101,8 @@ IF OBJECT_ID('BOGO.Pago_alquiler', 'U') IS NOT NULL
 
 
 -- BORRADO DE PROCEDURES
-
+IF OBJECT_ID('BOGO.Caracteristicas', 'U') IS NOT NULL 
+	DROP PROCEDURE BOGO.Caracteristicas
 
 -- BORRADO DE TRIGGERS
 
@@ -274,7 +275,7 @@ CREATE TABLE BOGO.Agente_inmobiliario(
 	dni varchar(150),
 	telefono varchar(150),
 	fecha_nacimiento DATETIME,
-	mail VARCHAR,
+	mail VARCHAR(150),
 	fecha_registro DATETIME
 )
 
@@ -308,7 +309,7 @@ CREATE TABLE BOGO.Inmueble
     numero_de_inmueble INT PRIMARY KEY IDENTITY (1,1),
     descripcion VARCHAR(150),
     direccion VARCHAR(150),
-    ambientes INT,
+    ambientes VARCHAR(150),
     superficie FLOAT,
     fecha_de_construccion DATETIME,
     expensas FLOAT,
@@ -320,8 +321,7 @@ CREATE TABLE BOGO.Inmueble
 	provincia INT, --fk
 	disposicion INT, --fk
 	orientacion INT, --fk
-	estado INT, --fk
-	caracteristicas_por_inmueble INT --fk
+	estado INT --fk
 )
 
 --23
@@ -406,9 +406,11 @@ ALTER TABLE BOGO.sucursal
 GO
 
 -- TODO 
+/*
 ALTER TABLE BOGO.Agente_Inmobiliario
 	ADD FOREIGN KEY (sucursal) REFERENCES BOGO.Sucursal(codigo_sucursal);
 GO
+*/
 
 ALTER TABLE BOGO.Pago_por_venta
 	ADD -- TODO FOREIGN KEY(venta) REFERENCES BOGO.venta(codigo_venta),
@@ -424,7 +426,7 @@ ALTER TABLE BOGO.Inmueble
 		FOREIGN KEY(orientacion) REFERENCES BOGO.Orientacion(codigo_orientacion),
 		FOREIGN KEY(localidad) REFERENCES BOGO.Localidad(codigo_localidad),
 		FOREIGN KEY(provincia) REFERENCES BOGO.Provincia(codigo_provincia),
-		FOREIGN KEY(caracteristicas_por_inmueble) REFERENCES BOGO.Caracteristicas_por_inmueble(codigo_caracteristica),
+		-- FOREIGN KEY(caracteristicas_por_inmueble) REFERENCES BOGO.Caracteristica_por_inmueble(codigo_caracteristica),
 		FOREIGN KEY(estado) REFERENCES BOGO.Estado(codigo_estado);
 GO
 
@@ -450,10 +452,11 @@ ALTER TABLE BOGO.Alquiler
 GO
 
 -- TODO
+/*
 ALTER TABLE BOGO.Periodo
 	ADD FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler);
 GO
-
+*/
 ALTER TABLE BOGO.Pago_alquiler
 	ADD -- TODO FOREIGN KEY(alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
 		FOREIGN KEY(medio_de_pago) REFERENCES BOGO.Medio_de_pago(codigo_medio_de_pago);
@@ -569,6 +572,14 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION BOGO.OBTENER_Inmueble_Cable(@codigo NVARCHAR(255), @caract_cable INT) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_inmueble DECIMAL (18,0);
+	SELECT @id_inmueble = numero_de_inmueble FROM BOGO.Inmueble WHERE @caract_cable = '1';
+	RETURN @id_inmueble;
+END
+GO
+
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
 ---------------------------------------------------------------------------------------------------
@@ -585,17 +596,13 @@ GO
 
 CREATE PROCEDURE BOGO.migrar_Caracteristica AS
 BEGIN
-	INSERT INTO BOGO.Caracteristica (nombre)
-		SELECT DISTINCT INMUEBLE_CARACTERISTICA_CABLE FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_CABLE IS NOT NULL
-		UNION
-		SELECT DISTINCT INMUEBLE_CARACTERISTICA_CALEFACCION FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_CALEFACCION IS NOT NULL
-		UNION
-		SELECT DISTINCT INMUEBLE_CARACTERISTICA_GAS FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_GAS IS NOT NULL
-		UNION
-		SELECT DISTINCT INMUEBLE_CARACTERISTICA_WIFI FROM gd_esquema.Maestra WHERE INMUEBLE_CARACTERISTICA_WIFI IS NOT NULL
+	INSERT INTO BOGO.Caracteristica (nombre) VALUES ('Cable')
+	INSERT INTO BOGO.Caracteristica (nombre) VALUES ('WIFI')
+	INSERT INTO BOGO.Caracteristica (nombre) VALUES ('Calefacción')
+	INSERT INTO BOGO.Caracteristica (nombre) VALUES ('Gas')
+		
 END
 GO
-
 
 CREATE PROCEDURE BOGO.migrar_Localidad AS
 BEGIN
@@ -671,10 +678,10 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE BOGO.Migrar_Estado_anuncio AS
+ALTER PROCEDURE BOGO.Migrar_Estado_anuncio AS
 BEGIN
-	INSERT INTO BOGO.Estado_anuncio (numero_anuncio, descripcion)
-		SELECT DISTINCT	ANUNCIO_CODIGO, ANUNCIO_ESTADO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL
+	INSERT INTO BOGO.Estado_anuncio (descripcion)
+		SELECT DISTINCT	ANUNCIO_ESTADO FROM gd_esquema.Maestra WHERE ANUNCIO_CODIGO IS NOT NULL
 END
 GO
 
@@ -739,7 +746,8 @@ GO
 
 CREATE PROCEDURE BOGO.Migrar_Inmueble AS
 BEGIN
-	INSERT INTO BOGO.Inmueble (numero_de_inmueble, descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia)
+	SET IDENTITY_INSERT BOGO.Inmueble ON
+	INSERT INTO BOGO.Inmueble (numero_de_inmueble, descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia, localidad)
 		SELECT DISTINCT	
 			INMUEBLE_CODIGO,
 			INMUEBLE_DESCRIPCION, 
@@ -754,10 +762,11 @@ BEGIN
 			BOGO.OBTENER_ID_DISPOSICION(INMUEBLE_DISPOSICION),
 			BOGO.OBTENER_ID_ORIENTACION(INMUEBLE_ORIENTACION),
 			BOGO.OBTENER_ID_ESTADO(INMUEBLE_ESTADO),
-			BOGO.OBTENER_ID_PROVINCIA(inmueble_provincia)
-			-- TODO y las caracteristicas?
+			BOGO.OBTENER_ID_PROVINCIA(inmueble_provincia),
+			BOGO.OBTENER_ID_LOCALIDAD(inmueble_localidad)
 			FROM gd_esquema.Maestra 
 			WHERE INMUEBLE_NOMBRE IS NOT NULL
+	SET IDENTITY_INSERT BOGO.Inmueble OFF
 END
 GO
 
@@ -836,6 +845,24 @@ END
 GO
 
 
+ALTER PROCEDURE BOGO.Migrar_Caracteristicas_por_inmueble AS
+BEGIN
+	INSERT INTO BOGO.Caracteristica_por_inmueble (numero_de_inmueble, codigo_caracteristica)
+		SELECT DISTINCT BOGO.Inmueble.numero_de_inmueble , '1' FROM gd_esquema.Maestra INNER JOIN BOGO.Inmueble on INMUEBLE_CODIGO = BOGO.Inmueble.numero_de_inmueble
+		WHERE INMUEBLE_CARACTERISTICA_CABLE = 1 
+	UNION
+		SELECT DISTINCT BOGO.Inmueble.numero_de_inmueble , '2' FROM gd_esquema.Maestra INNER JOIN BOGO.Inmueble on INMUEBLE_CODIGO = BOGO.Inmueble.numero_de_inmueble
+		WHERE INMUEBLE_CARACTERISTICA_WIFI = 1 
+	UNION
+		SELECT DISTINCT BOGO.Inmueble.numero_de_inmueble , '3' FROM gd_esquema.Maestra INNER JOIN BOGO.Inmueble on INMUEBLE_CODIGO = BOGO.Inmueble.numero_de_inmueble
+		WHERE INMUEBLE_CARACTERISTICA_CALEFACCION = 1 
+	UNION
+		SELECT DISTINCT BOGO.Inmueble.numero_de_inmueble , '4' FROM gd_esquema.Maestra INNER JOIN BOGO.Inmueble on INMUEBLE_CODIGO = BOGO.Inmueble.numero_de_inmueble
+		WHERE INMUEBLE_CARACTERISTICA_GAS = 1 
+END
+GO
+	
+
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
 ---------------------------------------------------------------------------------------------------
@@ -908,6 +935,8 @@ EXEC BOGO.Migrar_periodo
 GO
 EXEC BOGO.Migrar_Pago_alquiler
 GO
+EXEC BOGO.Migrar_Caracteristicas_por_inmueble
+GO
 
 
 ---------------------------------------------------------------------------------------------------
@@ -939,3 +968,28 @@ where SUCURSAL_LOCALIDAD is not null
 
 
 SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'gd_esquema'
+select * from BOGO.provincia
+select * from BOGO.caracteristica
+select * from BOGO.localidad inner join bogo.provincia on bogo.provincia.codigo_provincia = bogo.Localidad.provincia
+select * from BOGO.barrio
+select * from BOGO.tipo_inmueble
+select * from BOGO.disposicion
+select * from BOGO.orientacion
+select * from BOGO.estado
+select * from BOGO.estado_alquiler
+select * from BOGO.medio_de_pago
+select * from BOGO.tipo_operacion
+select * from BOGO.tipo_periodo
+select * from BOGO.Estado_anuncio
+select * from BOGO.moneda
+select * from BOGO.sucursal
+select * from BOGO.propietario
+select * from BOGO.comprador
+select * from BOGO.agente_inmobiliario
+select * from BOGO.inquilino
+select * from BOGO.pago_por_venta
+select * from BOGO.inmueble
+select * from BOGO.Caracteristica_por_inmueble 
+
+select inmueble_codigo, INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_CALEFACCION, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI from gd_esquema.Maestra where inmueble_codigo is not null
+
