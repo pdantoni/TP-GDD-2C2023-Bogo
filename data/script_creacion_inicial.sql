@@ -524,7 +524,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Moneda(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_MONEDA(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_moneda DECIMAL(18,0);
 	SELECT @id_moneda = codigo_moneda FROM BOGO.Moneda WHERE descripcion = @nombre;
@@ -532,7 +532,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Medio_de_pago(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_MEDIO_DE_PAGO(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_Medio_de_pago DECIMAL(18,0);
 	SELECT @id_Medio_de_pago = codigo_Medio_de_pago FROM BOGO.Medio_de_pago WHERE nombre = @nombre;
@@ -540,7 +540,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Tipo_operacion(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_TIPO_OPERACION(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_tipo_operacion DECIMAL(18,0);
 	SELECT @id_tipo_operacion = codigo_tipo_operacion FROM BOGO.Tipo_operacion WHERE nombre = @nombre;
@@ -548,7 +548,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Tipo_periodo(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_TIPO_PERIODO(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_tipo_periodo DECIMAL(18,0);
 	SELECT @id_tipo_periodo = codigo_tipo_periodo FROM BOGO.Tipo_periodo WHERE descripcion = @nombre;
@@ -556,7 +556,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Estado_anuncio(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_ESTADO_ANUNCIO(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_estado_anuncio DECIMAL(18,0);
 	SELECT @id_estado_anuncio = codigo_estado FROM BOGO.Estado_anuncio WHERE descripcion = @nombre;
@@ -564,7 +564,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_ID_Estado_alquiler(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_ID_ESTADO_ALQUILER(@nombre NVARCHAR(255)) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_estado_alquiler DECIMAL(18,0);
 	SELECT @id_estado_alquiler = codigo_estado_alquiler FROM BOGO.Estado_alquiler WHERE descripcion = @nombre;
@@ -572,7 +572,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION BOGO.OBTENER_Inmueble_Cable(@codigo NVARCHAR(255), @caract_cable INT) RETURNS DECIMAL (18,0) AS
+CREATE FUNCTION BOGO.OBTENER_INMUEBLE_CABLE(@codigo NVARCHAR(255), @caract_cable INT) RETURNS DECIMAL (18,0) AS
 BEGIN
 	DECLARE @id_inmueble DECIMAL (18,0);
 	SELECT @id_inmueble = numero_de_inmueble FROM BOGO.Inmueble WHERE @caract_cable = '1';
@@ -770,82 +770,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE BOGO.Migrar_Anuncio AS
-BEGIN
-	INSERT INTO BOGO.Anuncio (fecha_publicacion, tipo_operacion, precio_inmueble, moneda, tipo_periodo, estado_anuncio, fecha_finalizacion, costo_anuncio)
-		SELECT DISTINCT	
-			ANUNCIO_FECHA_PUBLICACION, 
-			BOGO.OBTENER_ID_Tipo_operacion(ANUNCIO_TIPO_OPERACION), 
-			ANUNCIO_PRECIO_PUBLICADO, 
-			BOGO.OBTENER_ID_MONEDA(ANUNCIO_MONEDA),
-			ANUNCIO_TIPO_PERIODO,
-			BOGO.OBTENER_ID_Estado_anuncio(ANUNCIO_ESTADO),
-			ANUNCIO_FECHA_FINALIZACION,
-			ANUNCIO_COSTO_ANUNCIO
-			FROM gd_esquema.Maestra 
-			WHERE ANUNCIO_FECHA_PUBLICACION IS NOT NULL
-END
-GO
-
-CREATE PROCEDURE BOGO.Migrar_Venta AS
-BEGIN
-	INSERT INTO BOGO.Venta (codigo_venta, comision_inmobiliaria, fecha_de_venta, precio_venta, moneda)
-		SELECT DISTINCT	
-			VENTA_CODIGO, 
-			VENTA_COMISION, 
-			VENTA_FECHA, 
-			VENTA_PRECIO_VENTA,
-			VENTA_MONEDA
-			FROM gd_esquema.Maestra 
-			WHERE VENTA_CODIGO IS NOT NULL
-END
-GO
-
-CREATE PROCEDURE BOGO.Migrar_Alquiler AS
-BEGIN
-	INSERT INTO BOGO.Alquiler (codigo_alquiler, fecha_de_inicio, fecha_de_fin, periodos, deposito, comision, gastos_de_averiguaciones, estado_alquiler)
-		SELECT DISTINCT	
-			ALQUILER_CODIGO,
-			ALQUILER_FECHA_INICIO, 
-			ALQUILER_FECHA_FIN, 
-			ALQUILER_CANT_PERIODOS,
-			ALQUILER_DEPOSITO, 
-			ALQUILER_COMISION,
-			ALQUILER_GASTOS_AVERIGUA,
-			BOGO.OBTENER_ID_Estado_alquiler(ALQUILER_ESTADO)
-			FROM gd_esquema.Maestra 
-			WHERE ALQUILER_FECHA_INICIO IS NOT NULL
-END
-GO
-
--- REVISAR
-CREATE PROCEDURE BOGO.Migrar_Periodo AS
-BEGIN
-	INSERT INTO BOGO.Periodo (numero_periodo_de_inicio, numero_periodo_de_fin, precio)
-		SELECT DISTINCT	DETALLE_ALQ_NRO_PERIODO_INI, DETALLE_ALQ_NRO_PERIODO_FIN, DETALLE_ALQ_PRECIO FROM gd_esquema.Maestra 
-			WHERE INMUEBLE_NOMBRE IS NOT NULL
-END
-GO
-
-CREATE PROCEDURE BOGO.Migrar_Pago_alquiler AS
-BEGIN
-	INSERT INTO BOGO.Pago_alquiler (codigo_pago_alquiler, fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago)
-		SELECT DISTINCT	
-		PAGO_ALQUILER_CODIGO, 
-		PAGO_ALQUILER_FECHA,
-		PAGO_ALQUILER_NRO_PERIODO,
-		PAGO_ALQUILER_DESC,
-		PAGO_ALQUILER_FEC_INI,
-		PAGO_ALQUILER_FEC_FIN,
-		PAGO_ALQUILER_IMPORTE,
-		BOGO.OBTENER_ID_Medio_de_pago(PAGO_ALQUILER_MEDIO_PAGO)
-		FROM gd_esquema.Maestra 
-		WHERE PAGO_ALQUILER_CODIGO IS NOT NULL
-END
-GO
-
-
-ALTER PROCEDURE BOGO.Migrar_Caracteristicas_por_inmueble AS
+CREATE PROCEDURE BOGO.Migrar_Caracteristicas_por_inmueble AS
 BEGIN
 	INSERT INTO BOGO.Caracteristica_por_inmueble (numero_de_inmueble, codigo_caracteristica)
 		SELECT DISTINCT BOGO.Inmueble.numero_de_inmueble , '1' FROM gd_esquema.Maestra INNER JOIN BOGO.Inmueble on INMUEBLE_CODIGO = BOGO.Inmueble.numero_de_inmueble
@@ -861,6 +786,91 @@ BEGIN
 		WHERE INMUEBLE_CARACTERISTICA_GAS = 1 
 END
 GO
+
+CREATE PROCEDURE BOGO.Migrar_Anuncio AS
+BEGIN
+	INSERT INTO BOGO.Anuncio (fecha_publicacion, tipo_operacion, precio_inmueble, moneda, tipo_periodo, estado_anuncio, fecha_finalizacion, costo_anuncio)
+		SELECT DISTINCT	
+			ANUNCIO_FECHA_PUBLICACION, 
+			BOGO.OBTENER_ID_Tipo_operacion(ANUNCIO_TIPO_OPERACION), 
+			ANUNCIO_PRECIO_PUBLICADO, 
+			BOGO.OBTENER_ID_MONEDA(ANUNCIO_MONEDA),
+			BOGO.OBTENER_ID_TIPO_PERIODO(ANUNCIO_TIPO_PERIODO),
+			BOGO.OBTENER_ID_Estado_anuncio(ANUNCIO_ESTADO),
+			ANUNCIO_FECHA_FINALIZACION,
+			ANUNCIO_COSTO_ANUNCIO
+			FROM gd_esquema.Maestra 
+			WHERE ANUNCIO_FECHA_PUBLICACION IS NOT NULL
+END
+GO
+-- TODO Conversion failed when converting the nvarchar value 'Moneda Dolares' to data type int.
+/*
+CREATE PROCEDURE BOGO.Migrar_Venta AS
+BEGIN
+	SET IDENTITY_INSERT BOGO.Venta ON
+	INSERT INTO BOGO.Venta (codigo_venta, comision_inmobiliaria, fecha_de_venta, precio_venta, moneda)
+		SELECT DISTINCT	
+			VENTA_CODIGO, 
+			VENTA_COMISION, 
+			VENTA_FECHA, 
+			VENTA_PRECIO_VENTA,
+			-- TODO FUNCION ?? VENTA_MONEDA
+			FROM gd_esquema.Maestra 
+			WHERE VENTA_CODIGO IS NOT NULL
+	SET IDENTITY_INSERT BOGO.Venta OFF
+END
+GO
+*/
+
+CREATE PROCEDURE BOGO.Migrar_Alquiler AS
+BEGIN
+	SET IDENTITY_INSERT BOGO.Alquiler ON
+	INSERT INTO BOGO.Alquiler (codigo_alquiler, fecha_de_inicio, fecha_de_fin, periodos, deposito, comision, gastos_de_averiguaciones, estado_alquiler)
+		SELECT DISTINCT	
+			ALQUILER_CODIGO,
+			ALQUILER_FECHA_INICIO, 
+			ALQUILER_FECHA_FIN, 
+			ALQUILER_CANT_PERIODOS,
+			ALQUILER_DEPOSITO, 
+			ALQUILER_COMISION,
+			ALQUILER_GASTOS_AVERIGUA,
+			BOGO.OBTENER_ID_Estado_alquiler(ALQUILER_ESTADO)
+			FROM gd_esquema.Maestra 
+			WHERE ALQUILER_FECHA_INICIO IS NOT NULL
+	SET IDENTITY_INSERT BOGO.Alquiler OFF
+END
+GO
+
+-- REVISAR
+CREATE PROCEDURE BOGO.Migrar_Periodo AS
+BEGIN
+	INSERT INTO BOGO.Periodo (numero_periodo_de_inicio, numero_periodo_de_fin, precio)
+		SELECT DISTINCT	DETALLE_ALQ_NRO_PERIODO_INI, DETALLE_ALQ_NRO_PERIODO_FIN, DETALLE_ALQ_PRECIO FROM gd_esquema.Maestra 
+			WHERE INMUEBLE_NOMBRE IS NOT NULL
+END
+GO
+
+-- TODO ver fecha vencimiento
+CREATE PROCEDURE BOGO.Migrar_Pago_alquiler AS
+BEGIN
+	SET IDENTITY_INSERT BOGO.Pago_alquiler ON
+	INSERT INTO BOGO.Pago_alquiler (codigo_pago_alquiler, fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago)
+		SELECT DISTINCT	
+		PAGO_ALQUILER_CODIGO, 
+		PAGO_ALQUILER_FECHA,
+		PAGO_ALQUILER_NRO_PERIODO,
+		PAGO_ALQUILER_DESC,
+		PAGO_ALQUILER_FEC_INI,
+		PAGO_ALQUILER_FEC_FIN,
+		PAGO_ALQUILER_IMPORTE,
+		BOGO.OBTENER_ID_Medio_de_pago(PAGO_ALQUILER_MEDIO_PAGO)
+		FROM gd_esquema.Maestra 
+		WHERE PAGO_ALQUILER_CODIGO IS NOT NULL
+	SET IDENTITY_INSERT BOGO.Pago_alquiler OFF
+END
+GO
+
+
 	
 
 ---------------------------------------------------------------------------------------------------
@@ -891,51 +901,51 @@ EXEC BOGO.migrar_Localidad;
 GO
 EXEC BOGO.migrar_Barrio;
 GO
-EXEC BOGO.migrar_Tipo_inmueble
+EXEC BOGO.migrar_Tipo_inmueble;
 GO
-EXEC BOGO.Migrar_disposicion
+EXEC BOGO.Migrar_Disposicion;
 GO
-EXEC BOGO.Migrar_Orientacion
+EXEC BOGO.Migrar_Orientacion;
 GO
-EXEC BOGO.Migrar_Estado
+EXEC BOGO.Migrar_Estado;
 GO
-EXEC BOGO.Migrar_Estado_alquiler
+EXEC BOGO.Migrar_Estado_alquiler;
 GO
-EXEC BOGO.Migrar_Medio_de_pago
+EXEC BOGO.Migrar_Medio_de_pago;
 GO
-EXEC BOGO.Migrar_Tipo_operacion
+EXEC BOGO.Migrar_Tipo_operacion;
 GO
-EXEC BOGO.Migrar_Tipo_periodo
+EXEC BOGO.Migrar_Tipo_periodo;
 GO
-EXEC BOGO.Migrar_Estado_anuncio
+EXEC BOGO.Migrar_Estado_anuncio;
 GO
-EXEC BOGO.Migrar_Moneda
+EXEC BOGO.Migrar_Moneda;
 GO
-EXEC BOGO.Migrar_Sucursal
+EXEC BOGO.Migrar_Sucursal;
 GO
-EXEC BOGO.Migrar_Propietario
+EXEC BOGO.Migrar_Propietario;
 GO
-EXEC BOGO.Migrar_Comprador
+EXEC BOGO.Migrar_Comprador;
 GO
-EXEC BOGO.Migrar_Agente_inmobiliario 
+EXEC BOGO.Migrar_Agente_inmobiliario;
 GO
-EXEC BOGO.Migrar_Inquilino
+EXEC BOGO.Migrar_Inquilino;
 GO
-EXEC BOGO.Migrar_Pago_por_venta
+EXEC BOGO.Migrar_Pago_por_venta;
 GO
-EXEC BOGO.Migrar_Inmueble
+EXEC BOGO.Migrar_Inmueble;
 GO
-EXEC BOGO.Migrar_Anuncio
+EXEC BOGO.Migrar_Caracteristicas_por_inmueble;
 GO
-EXEC BOGO.Migrar_Venta
+EXEC BOGO.Migrar_Anuncio;
 GO
-EXEC BOGO.Migrar_Alquiler
+EXEC BOGO.Migrar_Venta;
 GO
-EXEC BOGO.Migrar_periodo
+EXEC BOGO.Migrar_Alquiler;
 GO
-EXEC BOGO.Migrar_Pago_alquiler
+EXEC BOGO.Migrar_Periodo;
 GO
-EXEC BOGO.Migrar_Caracteristicas_por_inmueble
+EXEC BOGO.Migrar_Pago_alquiler;
 GO
 
 
@@ -990,6 +1000,10 @@ select * from BOGO.inquilino
 select * from BOGO.pago_por_venta
 select * from BOGO.inmueble
 select * from BOGO.Caracteristica_por_inmueble 
+select * from BOGO.Anuncio
+select * from BOGO.venta -- ver
+select * from BOGO.alquiler
+select * from BOGO.Pago_alquiler
 
 select inmueble_codigo, INMUEBLE_CARACTERISTICA_CABLE, INMUEBLE_CARACTERISTICA_CALEFACCION, INMUEBLE_CARACTERISTICA_GAS, INMUEBLE_CARACTERISTICA_WIFI from gd_esquema.Maestra where inmueble_codigo is not null
 
