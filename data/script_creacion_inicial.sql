@@ -137,18 +137,6 @@ IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO_ALQUILER') IS NOT NULL
 IF OBJECT_ID('BOGO.OBTENER_INMUEBLE_CABLE') IS NOT NULL 
 	DROP FUNCTION BOGO.OBTENER_INMUEBLE_CABLE
 
--- BORRADO DE FUNCIONES
-/*
-Declare @sql NVARCHAR(MAX) = N'';
-SELECT @sql = @sql + N' DROP FUNCTION ' 
-                   + QUOTENAME(SCHEMA_NAME(schema_id)) 
-                   + N'.' + QUOTENAME(name)
-FROM sys.objects
-WHERE type_desc LIKE '%FUNCTION%';
-
-Exec sp_executesql @sql
-GO
-*/
 
 -- BORRADO DE PROCEDURES
 IF OBJECT_ID('BOGO.migrar_Provincia') IS NOT NULL 
@@ -248,21 +236,18 @@ CREATE SCHEMA BOGO;
 GO
 
 -- CREACION DE TABLAS
---1
 CREATE TABLE BOGO.Provincia
 ( 
 	codigo_provincia INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150)
 )
 
---2
 CREATE TABLE BOGO.Caracteristica
 ( 
 	codigo_caracteristica INT PRIMARY KEY IDENTITY(1,1), 
 	nombre VARCHAR(150)
 )
 
---3
 CREATE TABLE BOGO.Localidad
 ( 
 	codigo_localidad INT PRIMARY KEY IDENTITY(1,1), 
@@ -270,82 +255,70 @@ CREATE TABLE BOGO.Localidad
 	provincia INT --fk
 )
 
---4
 CREATE TABLE BOGO.Barrio(
 	codigo_barrio INT PRIMARY KEY IDENTITY(1,1),
 	nombre varchar(150),
 	localidad INT --fk
 )
 
---5
 CREATE TABLE BOGO.Tipo_Inmueble
 ( 
     codigo_tipo_inmueble INT PRIMARY KEY IDENTITY (1,1), 
     nombre VARCHAR(150), 
 )
 
---6
 CREATE TABLE BOGO.Disposicion
 ( 
     codigo_disposicion INT PRIMARY KEY IDENTITY(1,1),
     descripcion VARCHAR(150)
 )
 
---7
 CREATE TABLE BOGO.Orientacion
 ( 
     codigo_orientacion INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
---8
 CREATE TABLE BOGO.Estado
 ( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
---9
 CREATE TABLE BOGO.Estado_alquiler
 ( 
     codigo_estado_alquiler INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
---10
 CREATE TABLE BOGO.Medio_de_pago
 ( 
     codigo_medio_de_pago INT PRIMARY KEY IDENTITY(1,1),
     nombre VARCHAR(150) 
 )
 
---11
 CREATE TABLE BOGO.Tipo_operacion(
 	codigo_tipo_operacion INT PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(150)
 )
 
---12
 CREATE TABLE BOGO.Tipo_periodo
 ( 
     codigo_tipo_periodo INT PRIMARY KEY IDENTITY (1,1), 
     descripcion VARCHAR(150)
 )
 
---13
 CREATE TABLE BOGO.Estado_anuncio
 ( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
---14
 CREATE TABLE BOGO.Moneda(
 	codigo_moneda INT PRIMARY KEY IDENTITY(1,1),
 	descripcion VARCHAR(150)
 )
 
---15
 CREATE TABLE BOGO.Caracteristica_por_inmueble
 (
 	codigo_caracteristica INT,
@@ -353,7 +326,6 @@ CREATE TABLE BOGO.Caracteristica_por_inmueble
 	PRIMARY KEY (codigo_caracteristica, numero_de_inmueble)
 )
 
---16
 CREATE TABLE BOGO.Sucursal
 ( 
 	codigo_sucursal INT PRIMARY KEY IDENTITY(1,1), 
@@ -364,7 +336,6 @@ CREATE TABLE BOGO.Sucursal
 	telefono VARCHAR(150) 
 )
 
---17
 CREATE TABLE BOGO.Propietario(
 	codigo_propietario INT PRIMARY KEY IDENTITY(1,1),
 	nombre varchar(150),
@@ -376,7 +347,6 @@ CREATE TABLE BOGO.Propietario(
 	telefono varchar(150),
 )
 
---18
 CREATE TABLE BOGO.Comprador
 ( 
 	codigo_comprador INT PRIMARY KEY IDENTITY(1,1), 
@@ -389,7 +359,6 @@ CREATE TABLE BOGO.Comprador
 	fecha_registro DATETIME
 )
 
---19
 CREATE TABLE BOGO.Agente_inmobiliario(
 	codigo_agente INT PRIMARY KEY IDENTITY(1,1),
 	nombre varchar(150),
@@ -402,7 +371,6 @@ CREATE TABLE BOGO.Agente_inmobiliario(
 	fecha_registro DATETIME
 )
 
---20
 CREATE TABLE BOGO.Inquilino
 ( 
     codigo_inquilino INT PRIMARY KEY IDENTITY(1,1), 
@@ -415,7 +383,6 @@ CREATE TABLE BOGO.Inquilino
 	fecha_registro DATETIME
 )
 
---21
 CREATE TABLE BOGO.Pago_por_venta
 ( 
 	codigo_pago_por_venta INT PRIMARY KEY IDENTITY(1,1), 
@@ -426,7 +393,6 @@ CREATE TABLE BOGO.Pago_por_venta
 	medio_de_pago INT --fk
 )
 
---22
 CREATE TABLE BOGO.Inmueble
 (
     numero_de_inmueble INT PRIMARY KEY IDENTITY (1,1),
@@ -447,7 +413,6 @@ CREATE TABLE BOGO.Inmueble
 	estado INT --fk
 )
 
---23
 CREATE TABLE BOGO.Anuncio(
 	numero_anuncio INT PRIMARY KEY IDENTITY(1,1),
 	fecha_publicacion DATETIME,
@@ -462,7 +427,6 @@ CREATE TABLE BOGO.Anuncio(
 	inmueble INT, --fk
 )
 
---24
 CREATE TABLE BOGO.Venta(
 	codigo_venta INT PRIMARY KEY IDENTITY(1,1),
 	comision_inmobiliaria FLOAT,
@@ -473,7 +437,6 @@ CREATE TABLE BOGO.Venta(
 	comprador INT, --fk
 )
 
---25
 CREATE TABLE BOGO.Alquiler
 ( 
     codigo_alquiler INT PRIMARY KEY IDENTITY (1,1), 
@@ -488,7 +451,6 @@ CREATE TABLE BOGO.Alquiler
 	estado_alquiler INT --fk
 )
 
---26
 CREATE TABLE BOGO.Periodo
 ( 
     codigo_periodo INT PRIMARY KEY IDENTITY(1,1), 
@@ -498,7 +460,6 @@ CREATE TABLE BOGO.Periodo
 	alquiler INT --fk
 )
 
---27
 CREATE TABLE BOGO.Pago_alquiler
 ( 
     codigo_pago_alquiler INT PRIMARY KEY IDENTITY(1,1),
@@ -1044,35 +1005,3 @@ EXEC BOGO.Migrar_Periodo;
 GO
 EXEC BOGO.Migrar_Pago_alquiler;
 GO
-
-
---------------------------------------------------------------------
--- EJEMPLOS
-/*
-select * from BOGO.provincia
-select * from BOGO.caracteristica
-select * from BOGO.localidad inner join bogo.provincia on bogo.provincia.codigo_provincia = bogo.Localidad.provincia
-select * from BOGO.barrio
-select * from BOGO.tipo_inmueble
-select * from BOGO.disposicion
-select * from BOGO.orientacion
-select * from BOGO.estado
-select * from BOGO.estado_alquiler
-select * from BOGO.medio_de_pago
-select * from BOGO.tipo_operacion
-select * from BOGO.tipo_periodo
-select * from BOGO.Estado_anuncio
-select * from BOGO.moneda
-select * from BOGO.sucursal
-select * from BOGO.propietario
-select * from BOGO.comprador
-select * from BOGO.agente_inmobiliario
-select * from BOGO.inquilino
-select * from BOGO.pago_por_venta
-select * from BOGO.inmueble
-select * from BOGO.Caracteristica_por_inmueble 
-select * from BOGO.Anuncio
-select * from BOGO.venta
-select * from BOGO.alquiler
-select * from BOGO.Pago_alquiler
-*/
