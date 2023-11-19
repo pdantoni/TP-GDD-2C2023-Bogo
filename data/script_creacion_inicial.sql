@@ -1,6 +1,6 @@
 USE [GD2C2023]
 
--- PARTE 1: borrado de tablas, funciones, procedures, vistas y esquema
+-- PARTE 1: borrado de tablas, funciones, procedures y esquema
 -- PARTE 2: creación de esquema, tablas y fk
 -- PARTE 3: creación de funciones
 -- PARTE 4: creación de procedures
