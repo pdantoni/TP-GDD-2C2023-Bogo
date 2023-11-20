@@ -74,6 +74,10 @@ CREATE TABLE BOGO.BI_Anuncios(
 	PRIMARY KEY (codigo_tiempo, codigo_tipo_operacion, codigo_tipo_inmueble, codigo_moneda, codigo_m2, codigo_ambientes, codigo_ubicacion)
 )
 
+CREATE TABLE BOGO.BI_Edad(
+	id_edad DECIMAL(18) PRIMARY KEY IDENTITY(1,1),
+	rango NVARCHAR(50) NOT NULL,
+)
 
 -- CREACION DE PKs COMPUESTAS
 ALTER TABLE BOGO.BI_Ubicacion
@@ -99,7 +103,25 @@ GO
 
 --  CREACION DE FUNCIONES 
 
--- Devuelve el rango de edad de un cliente según fecha de nacimiento.
+-- Devuelve el ID para un año y mes específico
+/*
+CREATE FUNCTION BOGO.ID_TIEMPO(@fecha DATE) RETURNS DECIMAL(18) AS
+BEGIN
+	DECLARE @anio DECIMAL(4),
+			@mes DECIMAL(2),
+			@id_tiempo DECIMAL(18)
+
+	SET @anio = DATEPART(YEAR, @fecha)
+	SET @mes = DATEPART(MONTH, @fecha)
+
+	SELECT @id_tiempo = id_tiempo FROM BOGO.bi_tiempo WHERE anio = @anio AND mes = @mes
+
+	RETURN @id_tiempo
+END
+GO
+*/
+
+-- Devuelve el rango de edad según fecha de nacimiento.
 /*
 CREATE FUNCTION BOGO.RANGO_EDAD(@FECHA_NACIMIENTO DATE) RETURNS DECIMAL(18) AS
 BEGIN
@@ -109,10 +131,12 @@ BEGIN
 	SET @HOY = GETDATE();
 	SET @EDAD = (DATEDIFF(DAY, @FECHA_NACIMIENTO, @HOY) / 365)
 
-	IF @EDAD BETWEEN 18 AND 30
-		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '18 - 30 años'
-	ELSE IF @EDAD BETWEEN 31 AND 50
-		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '31 - 50 años'
+	IF @EDAD < 25
+		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '< 25 años'
+	ELSE IF @EDAD BETWEEN 25 AND 35
+		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '25 - 35 años'
+	ELSE IF @EDAD BETWEEN 36 AND 50
+		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '35 - 50 años'
 	ELSE
 		SELECT @id_edad = id_edad FROM BOGO.bi_edad WHERE rango = '> 50 años'
 
@@ -127,6 +151,16 @@ GO
 ---------------------------------------------------------------------------------------------------
 
 --  CREACION DE PROCEDURES 
+CREATE PROCEDURE BOGO.bi_cargar_edad AS
+BEGIN
+	INSERT INTO BOGO.bi_edad (rango)
+		VALUES 	('< 25 años'),
+				('25 - 35 años'),
+				('35 - 50 años'),
+				('> 50 años')
+END
+GO
+
 CREATE PROCEDURE BOGO.bi_migrar_tiempo AS
 BEGIN
     INSERT INTO BOGO.BI_tiempo (anio, cuatrimestre, mes) 
@@ -261,3 +295,20 @@ CREATE VIEW BOGO.v_precio_promedio_anuncios AS
 		) ve ON p.codigo_autoparte = ve.codigo_autoparte
 GO
 
+
+/* 3. Los 5 barrios más elegidos para alquilar en función del rango etario de los inquilinos para cada cuatrimestre/año. Se calcula en función de los alquileres
+dados de alta en dicho periodo.
+
+CREATE VIEW BOGO.v_barrios_por_rango_etario AS
+	SELECT t.anio AS Anio, t.mes AS Mes, e.rango AS Rango_Etario, cp.categoria AS Barrio
+		FROM BOGO.bi_alquiler v INNER JOIN BOGO.bi_barrio cp ON v.id_barrio = cp.categoria_id
+											INNER JOIN BOGO.bi_edad e ON v.id_edad = e.id_edad
+											INNER JOIN BOGO.bi_tiempo t ON v.id_tiempo = t.id_tiempo
+		WHERE v.id_barrio IN (SELECT TOP 5 v1.id_barrio
+											 FROM BOGO.bi_alquiler v1
+											 WHERE v1.id_edad = v.id_edad AND v1.id_tiempo = v.id_tiempo
+											 GROUP BY v1.id_barrio
+											 ORDER BY SUM(v1.cantidad) DESC)
+		GROUP BY t.anio, t.mes, e.rango, cp.categoria 
+GO
+*/
