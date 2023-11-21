@@ -11,219 +11,98 @@ USE [GD2C2023]
 ---------------------------------------------------------------------------------------------------
 
 -- BORRADO DE TABLAS
-
-IF OBJECT_ID('BOGO.Pago_alquiler', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Pago_alquiler
-
-IF OBJECT_ID('BOGO.Periodo', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Periodo
-
-IF OBJECT_ID('BOGO.Alquiler', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Alquiler
-
-IF OBJECT_ID('BOGO.Pago_por_venta', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Pago_por_venta
-
-IF OBJECT_ID('BOGO.Venta', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Venta
-
-IF OBJECT_ID('BOGO.Anuncio', 'U') IS NOT NULL 
-	DROP TABLE BOGO.anuncio
-
-IF OBJECT_ID('BOGO.Caracteristica_por_inmueble', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Caracteristica_por_inmueble
-
-IF OBJECT_ID('BOGO.Inmueble', 'U') IS NOT NULL 
-	DROP TABLE BOGO.inmueble
-
-IF OBJECT_ID('BOGO.Inquilino', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Inquilino
-
-IF OBJECT_ID('BOGO.Agente_inmobiliario', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Agente_inmobiliario
-
-IF OBJECT_ID('BOGO.Propietario', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Propietario
-
-IF OBJECT_ID('BOGO.Comprador', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Comprador
-
-IF OBJECT_ID('BOGO.Sucursal', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Sucursal
-
-IF OBJECT_ID('BOGO.Estado_anuncio', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Estado_anuncio
-
-IF OBJECT_ID('BOGO.Moneda', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Moneda
-
-IF OBJECT_ID('BOGO.Tipo_operacion', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Tipo_operacion
-
-IF OBJECT_ID('BOGO.Tipo_periodo', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Tipo_periodo
-
-IF OBJECT_ID('BOGO.Tipo_inmueble', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Tipo_inmueble
-
-IF OBJECT_ID('BOGO.Disposicion', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Disposicion
-
-IF OBJECT_ID('BOGO.Orientacion', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Orientacion
-
-IF OBJECT_ID('BOGO.Estado', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Estado
-
-IF OBJECT_ID('BOGO.Estado_alquiler', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Estado_alquiler
-
-IF OBJECT_ID('BOGO.Medio_de_pago', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Medio_de_pago
-
-IF OBJECT_ID('BOGO.Barrio', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Barrio
-
-IF OBJECT_ID('BOGO.Caracteristica', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Caracteristica
-
-IF OBJECT_ID('BOGO.Localidad', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Localidad
-
-IF OBJECT_ID('BOGO.Provincia', 'U') IS NOT NULL 
-	DROP TABLE BOGO.Provincia
-
+IF OBJECT_ID('BOGO.Caracteristica_por_inmueble', 'U') IS NOT NULL DROP TABLE BOGO.Caracteristica_por_inmueble
+IF OBJECT_ID('BOGO.Inmueble', 'U') IS NOT NULL DROP TABLE BOGO.Inmueble
+IF OBJECT_ID('BOGO.Estado', 'U') IS NOT NULL DROP TABLE BOGO.Estado
+IF OBJECT_ID('BOGO.Tipo_inmueble', 'U') IS NOT NULL DROP TABLE BOGO.Tipo_inmueble
+IF OBJECT_ID('BOGO.Disposicion', 'U') IS NOT NULL DROP TABLE BOGO.Disposicion
+IF OBJECT_ID('BOGO.Orientacion', 'U') IS NOT NULL DROP TABLE BOGO.Orientacion
+IF OBJECT_ID('BOGO.Caracteristica', 'U') IS NOT NULL DROP TABLE BOGO.Caracteristica
+IF OBJECT_ID('BOGO.Sucursal', 'U') IS NOT NULL DROP TABLE BOGO.Sucursal
+IF OBJECT_ID('BOGO.Barrio', 'U') IS NOT NULL DROP TABLE BOGO.Barrio
+IF OBJECT_ID('BOGO.Localidad', 'U') IS NOT NULL DROP TABLE BOGO.Localidad
+IF OBJECT_ID('BOGO.Provincia', 'U') IS NOT NULL DROP TABLE BOGO.Provincia
+IF OBJECT_ID('BOGO.Pago_por_venta', 'U') IS NOT NULL DROP TABLE BOGO.Pago_por_venta
+IF OBJECT_ID('BOGO.Venta', 'U') IS NOT NULL DROP TABLE BOGO.Venta
+IF OBJECT_ID('BOGO.Comprador', 'U') IS NOT NULL DROP TABLE BOGO.Comprador
+IF OBJECT_ID('BOGO.Pago_alquiler', 'U') IS NOT NULL DROP TABLE BOGO.Pago_alquiler
+IF OBJECT_ID('BOGO.Alquiler', 'U') IS NOT NULL DROP TABLE BOGO.Alquiler
+IF OBJECT_ID('BOGO.Estado_alquiler', 'U') IS NOT NULL DROP TABLE BOGO.Estado_alquiler
+IF OBJECT_ID('BOGO.Anuncio', 'U') IS NOT NULL DROP TABLE BOGO.Anuncio
+IF OBJECT_ID('BOGO.Tipo_operacion', 'U') IS NOT NULL DROP TABLE BOGO.Tipo_operacion
+IF OBJECT_ID('BOGO.Estado_anuncio', 'U') IS NOT NULL DROP TABLE BOGO.Estado_anuncio
+IF OBJECT_ID('BOGO.Tipo_periodo', 'U') IS NOT NULL DROP TABLE BOGO.Tipo_periodo
+IF OBJECT_ID('BOGO.Propietario', 'U') IS NOT NULL DROP TABLE BOGO.Propietario
+IF OBJECT_ID('BOGO.Agente_inmobiliario', 'U') IS NOT NULL DROP TABLE BOGO.Agente_inmobiliario
+IF OBJECT_ID('BOGO.Inquilino', 'U') IS NOT NULL DROP TABLE BOGO.Inquilino
+IF OBJECT_ID('BOGO.Periodo', 'U') IS NOT NULL DROP TABLE BOGO.Periodo
+IF OBJECT_ID('BOGO.Medio_de_pago', 'U') IS NOT NULL DROP TABLE BOGO.Medio_de_pago
+IF OBJECT_ID('BOGO.Moneda', 'U') IS NOT NULL DROP TABLE BOGO.Moneda
+GO
 
 -- BORRADO DE FUNCIONES
-IF OBJECT_ID('BOGO.OBTENER_ID_PROVINCIA') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_PROVINCIA
-
-IF OBJECT_ID('BOGO.OBTENER_ID_LOCALIDAD') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_LOCALIDAD
-
-IF OBJECT_ID('BOGO.OBTENER_ID_BARRIO') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_BARRIO
-
-IF OBJECT_ID('BOGO.OBTENER_ID_DISPOSICION') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_DISPOSICION
-
-IF OBJECT_ID('BOGO.OBTENER_ID_ORIENTACION') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_ORIENTACION
-
-IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_ESTADO
-
-IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_INMUEBLE') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_TIPO_INMUEBLE
-
-IF OBJECT_ID('BOGO.OBTENER_ID_MONEDA') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_MONEDA
-
-IF OBJECT_ID('BOGO.OBTENER_ID_MEDIO_DE_PAGO') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_MEDIO_DE_PAGO
-
-IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_OPERACION') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_TIPO_OPERACION
-
-IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_PERIODO') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_TIPO_PERIODO
-
-IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO_ANUNCIO') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_ESTADO_ANUNCIO
-
-IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO_ALQUILER') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_ID_ESTADO_ALQUILER
-
-IF OBJECT_ID('BOGO.OBTENER_INMUEBLE_CABLE') IS NOT NULL 
-	DROP FUNCTION BOGO.OBTENER_INMUEBLE_CABLE
-
+IF OBJECT_ID('BOGO.OBTENER_ID_PROVINCIA') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_PROVINCIA
+IF OBJECT_ID('BOGO.OBTENER_ID_LOCALIDAD') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_LOCALIDAD
+IF OBJECT_ID('BOGO.OBTENER_ID_BARRIO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_BARRIO
+IF OBJECT_ID('BOGO.OBTENER_ID_DISPOSICION') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_DISPOSICION
+IF OBJECT_ID('BOGO.OBTENER_ID_ORIENTACION') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ORIENTACION
+IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ESTADO
+IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_INMUEBLE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_TIPO_INMUEBLE
+IF OBJECT_ID('BOGO.OBTENER_ID_MONEDA') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_MONEDA
+IF OBJECT_ID('BOGO.OBTENER_ID_MEDIO_DE_PAGO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_MEDIO_DE_PAGO
+IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_OPERACION') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_TIPO_OPERACION
+IF OBJECT_ID('BOGO.OBTENER_ID_TIPO_PERIODO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_TIPO_PERIODO
+IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO_ANUNCIO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ESTADO_ANUNCIO
+IF OBJECT_ID('BOGO.OBTENER_ID_ESTADO_ALQUILER') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ESTADO_ALQUILER
+IF OBJECT_ID('BOGO.OBTENER_INMUEBLE_CABLE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_INMUEBLE_CABLE
+IF OBJECT_ID('BOGO.OBTENER_ID_INMUEBLE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_INMUEBLE
+IF OBJECT_ID('BOGO.OBTENER_ID_ANUNCIO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ANUNCIO
+IF OBJECT_ID('BOGO.OBTENER_ID_INQUILINO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_INQUILINO
+IF OBJECT_ID('BOGO.OBTENER_ID_AGENTE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_AGENTE
+IF OBJECT_ID('BOGO.OBTENER_ID_ALQUILER') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_ALQUILER
+IF OBJECT_ID('BOGO.OBTENER_ID_VENTA') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_VENTA
+IF OBJECT_ID('BOGO.OBTENER_ID_COMPRADOR') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_COMPRADOR
+GO
 
 -- BORRADO DE PROCEDURES
-IF OBJECT_ID('BOGO.migrar_Provincia') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Provincia
-
-IF OBJECT_ID('BOGO.migrar_Caracteristica') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Caracteristica
-
-IF OBJECT_ID('BOGO.migrar_Localidad') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Localidad
-
-IF OBJECT_ID('BOGO.migrar_Barrio') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Barrio
-
-IF OBJECT_ID('BOGO.migrar_Tipo_inmueble') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Tipo_inmueble
-
-IF OBJECT_ID('BOGO.migrar_Disposicion') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Disposicion
-
-IF OBJECT_ID('BOGO.migrar_Orientacion') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Orientacion
-
-IF OBJECT_ID('BOGO.migrar_Estado') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Estado
-
-IF OBJECT_ID('BOGO.migrar_Estado_alquiler') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Estado_alquiler
-
-IF OBJECT_ID('BOGO.migrar_Medio_de_pago') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Medio_de_pago
-
-IF OBJECT_ID('BOGO.migrar_Tipo_operacion') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Tipo_operacion
-
-IF OBJECT_ID('BOGO.migrar_Tipo_periodo') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Tipo_periodo
-
-IF OBJECT_ID('BOGO.migrar_Estado_anuncio') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Estado_anuncio
-
-IF OBJECT_ID('BOGO.migrar_Moneda') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Moneda
-
-IF OBJECT_ID('BOGO.migrar_Sucursal') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Sucursal
-
-IF OBJECT_ID('BOGO.migrar_Propietario') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Propietario
-
-IF OBJECT_ID('BOGO.migrar_Comprador') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Comprador
-
-IF OBJECT_ID('BOGO.migrar_Agente_inmobiliario') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Agente_inmobiliario
-
-IF OBJECT_ID('BOGO.migrar_Inquilino') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Inquilino
-
-IF OBJECT_ID('BOGO.migrar_Pago_por_venta') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Pago_por_venta
-
-IF OBJECT_ID('BOGO.migrar_Inmueble') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Inmueble
-
-IF OBJECT_ID('BOGO.migrar_Caracteristicas_por_inmueble') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Caracteristicas_por_inmueble
-
-IF OBJECT_ID('BOGO.migrar_Anuncio') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Anuncio
-
-IF OBJECT_ID('BOGO.migrar_Venta') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Venta
-
-IF OBJECT_ID('BOGO.migrar_Alquiler') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Alquiler
-
-IF OBJECT_ID('BOGO.migrar_Periodo') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Periodo
-
-IF OBJECT_ID('BOGO.migrar_Pago_alquiler') IS NOT NULL 
-	DROP PROCEDURE BOGO.migrar_Pago_alquiler
+IF OBJECT_ID('BOGO.migrar_Provincia') IS NOT NULL DROP PROCEDURE BOGO.migrar_Provincia
+IF OBJECT_ID('BOGO.migrar_Caracteristica') IS NOT NULL DROP PROCEDURE BOGO.migrar_Caracteristica
+IF OBJECT_ID('BOGO.migrar_Localidad') IS NOT NULL DROP PROCEDURE BOGO.migrar_Localidad
+IF OBJECT_ID('BOGO.migrar_Barrio') IS NOT NULL DROP PROCEDURE BOGO.migrar_Barrio
+IF OBJECT_ID('BOGO.migrar_Tipo_inmueble') IS NOT NULL DROP PROCEDURE BOGO.migrar_Tipo_inmueble
+IF OBJECT_ID('BOGO.migrar_Disposicion') IS NOT NULL DROP PROCEDURE BOGO.migrar_Disposicion
+IF OBJECT_ID('BOGO.migrar_Orientacion') IS NOT NULL DROP PROCEDURE BOGO.migrar_Orientacion
+IF OBJECT_ID('BOGO.migrar_Estado') IS NOT NULL DROP PROCEDURE BOGO.migrar_Estado
+IF OBJECT_ID('BOGO.migrar_Estado_alquiler') IS NOT NULL DROP PROCEDURE BOGO.migrar_Estado_alquiler
+IF OBJECT_ID('BOGO.migrar_Medio_de_pago') IS NOT NULL DROP PROCEDURE BOGO.migrar_Medio_de_pago
+IF OBJECT_ID('BOGO.migrar_Tipo_operacion') IS NOT NULL DROP PROCEDURE BOGO.migrar_Tipo_operacion
+IF OBJECT_ID('BOGO.migrar_Tipo_periodo') IS NOT NULL DROP PROCEDURE BOGO.migrar_Tipo_periodo
+IF OBJECT_ID('BOGO.migrar_Estado_anuncio') IS NOT NULL DROP PROCEDURE BOGO.migrar_Estado_anuncio
+IF OBJECT_ID('BOGO.migrar_Moneda') IS NOT NULL DROP PROCEDURE BOGO.migrar_Moneda
+IF OBJECT_ID('BOGO.migrar_Sucursal') IS NOT NULL DROP PROCEDURE BOGO.migrar_Sucursal
+IF OBJECT_ID('BOGO.migrar_Propietario') IS NOT NULL DROP PROCEDURE BOGO.migrar_Propietario
+IF OBJECT_ID('BOGO.migrar_Comprador') IS NOT NULL DROP PROCEDURE BOGO.migrar_Comprador
+IF OBJECT_ID('BOGO.migrar_Agente_inmobiliario') IS NOT NULL DROP PROCEDURE BOGO.migrar_Agente_inmobiliario
+IF OBJECT_ID('BOGO.migrar_Inquilino') IS NOT NULL DROP PROCEDURE BOGO.migrar_Inquilino
+IF OBJECT_ID('BOGO.migrar_Pago_por_venta') IS NOT NULL DROP PROCEDURE BOGO.migrar_Pago_por_venta
+IF OBJECT_ID('BOGO.migrar_Inmueble') IS NOT NULL DROP PROCEDURE BOGO.migrar_Inmueble
+IF OBJECT_ID('BOGO.migrar_Caracteristicas_por_inmueble') IS NOT NULL DROP PROCEDURE BOGO.migrar_Caracteristicas_por_inmueble
+IF OBJECT_ID('BOGO.migrar_Anuncio') IS NOT NULL DROP PROCEDURE BOGO.migrar_Anuncio
+IF OBJECT_ID('BOGO.migrar_Venta') IS NOT NULL DROP PROCEDURE BOGO.migrar_Venta
+IF OBJECT_ID('BOGO.migrar_Alquiler') IS NOT NULL DROP PROCEDURE BOGO.migrar_Alquiler
+IF OBJECT_ID('BOGO.migrar_Periodo') IS NOT NULL DROP PROCEDURE BOGO.migrar_Periodo
+IF OBJECT_ID('BOGO.migrar_Pago_alquiler') IS NOT NULL DROP PROCEDURE BOGO.migrar_Pago_alquiler
+IF OBJECT_ID('BOGO.OBTENER_ID_INMUEBLE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_INMUEBLE
+IF OBJECT_ID('BOGO.OBTENER_ID_Inquilino') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_Inquilino
+IF OBJECT_ID('BOGO.OBTENER_ID_AGENTE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_AGENTE
+IF OBJECT_ID('BOGO.OBTENER_ID_Anuncio') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_Anuncio
+IF OBJECT_ID('BOGO.OBTENER_ID_PROPIETARIO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_PROPIETARIO
+IF OBJECT_ID('BOGO.OBTENER_ID_Comprador') IS NOT NULL DROP PROCEDURE BOGO.OBTENER_ID_Comprador
+IF OBJECT_ID('BOGO.OBTENER_ID_Venta') IS NOT NULL DROP PROCEDURE BOGO.OBTENER_ID_Venta
 GO
 
 -- BORRADO DE ESQUEMA
-IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'BOGO')
-  DROP SCHEMA BOGO
+IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'BOGO') DROP SCHEMA BOGO
 GO
 
 
@@ -236,14 +115,12 @@ CREATE SCHEMA BOGO;
 GO
 
 -- CREACION DE TABLAS
-CREATE TABLE BOGO.Provincia
-( 
+CREATE TABLE BOGO.Provincia( 
 	codigo_provincia INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Caracteristica
-( 
+CREATE TABLE BOGO.Caracteristica( 
 	codigo_caracteristica INT PRIMARY KEY IDENTITY(1,1), 
 	nombre VARCHAR(150)
 )
@@ -261,38 +138,32 @@ CREATE TABLE BOGO.Barrio(
 	localidad INT --fk
 )
 
-CREATE TABLE BOGO.Tipo_Inmueble
-( 
+CREATE TABLE BOGO.Tipo_Inmueble( 
     codigo_tipo_inmueble INT PRIMARY KEY IDENTITY (1,1), 
     nombre VARCHAR(150), 
 )
 
-CREATE TABLE BOGO.Disposicion
-( 
+CREATE TABLE BOGO.Disposicion( 
     codigo_disposicion INT PRIMARY KEY IDENTITY(1,1),
     descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Orientacion
-( 
+CREATE TABLE BOGO.Orientacion( 
     codigo_orientacion INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Estado
-( 
+CREATE TABLE BOGO.Estado( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Estado_alquiler
-( 
+CREATE TABLE BOGO.Estado_alquiler( 
     codigo_estado_alquiler INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Medio_de_pago
-( 
+CREATE TABLE BOGO.Medio_de_pago( 
     codigo_medio_de_pago INT PRIMARY KEY IDENTITY(1,1),
     nombre VARCHAR(150) 
 )
@@ -302,14 +173,12 @@ CREATE TABLE BOGO.Tipo_operacion(
 	nombre VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Tipo_periodo
-( 
+CREATE TABLE BOGO.Tipo_periodo( 
     codigo_tipo_periodo INT PRIMARY KEY IDENTITY (1,1), 
     descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Estado_anuncio
-( 
+CREATE TABLE BOGO.Estado_anuncio( 
     codigo_estado INT PRIMARY KEY IDENTITY(1,1), 
     descripcion VARCHAR(150)
 )
@@ -319,15 +188,13 @@ CREATE TABLE BOGO.Moneda(
 	descripcion VARCHAR(150)
 )
 
-CREATE TABLE BOGO.Caracteristica_por_inmueble
-(
+CREATE TABLE BOGO.Caracteristica_por_inmueble(
 	codigo_caracteristica INT,
 	numero_de_inmueble INT,
 	PRIMARY KEY (codigo_caracteristica, numero_de_inmueble)
 )
 
-CREATE TABLE BOGO.Sucursal
-( 
+CREATE TABLE BOGO.Sucursal( 
 	codigo_sucursal INT PRIMARY KEY IDENTITY(1,1), 
     direccion VARCHAR(150),
 	localidad INT, -- fk
@@ -347,8 +214,7 @@ CREATE TABLE BOGO.Propietario(
 	telefono varchar(150),
 )
 
-CREATE TABLE BOGO.Comprador
-( 
+CREATE TABLE BOGO.Comprador( 
 	codigo_comprador INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150),
 	apellido VARCHAR(150),
@@ -371,8 +237,7 @@ CREATE TABLE BOGO.Agente_inmobiliario(
 	fecha_registro DATETIME
 )
 
-CREATE TABLE BOGO.Inquilino
-( 
+CREATE TABLE BOGO.Inquilino( 
     codigo_inquilino INT PRIMARY KEY IDENTITY(1,1), 
     nombre VARCHAR(150),
     apellido VARCHAR(150),
@@ -383,8 +248,7 @@ CREATE TABLE BOGO.Inquilino
 	fecha_registro DATETIME
 )
 
-CREATE TABLE BOGO.Pago_por_venta
-( 
+CREATE TABLE BOGO.Pago_por_venta( 
 	codigo_pago_por_venta INT PRIMARY KEY IDENTITY(1,1), 
     importe_del_pago FLOAT, 
     cotizacion FLOAT,
@@ -393,8 +257,7 @@ CREATE TABLE BOGO.Pago_por_venta
 	medio_de_pago INT --fk
 )
 
-CREATE TABLE BOGO.Inmueble
-(
+CREATE TABLE BOGO.Inmueble(
     numero_de_inmueble INT PRIMARY KEY IDENTITY (1,1),
     descripcion VARCHAR(150),
     direccion VARCHAR(150),
@@ -437,8 +300,7 @@ CREATE TABLE BOGO.Venta(
 	comprador INT, --fk
 )
 
-CREATE TABLE BOGO.Alquiler
-( 
+CREATE TABLE BOGO.Alquiler( 
     codigo_alquiler INT PRIMARY KEY IDENTITY (1,1), 
     fecha_de_inicio DATETIME,
     fecha_de_fin DATETIME,
@@ -451,8 +313,7 @@ CREATE TABLE BOGO.Alquiler
 	estado_alquiler INT --fk
 )
 
-CREATE TABLE BOGO.Periodo
-( 
+CREATE TABLE BOGO.Periodo( 
     codigo_periodo INT PRIMARY KEY IDENTITY(1,1), 
     numero_periodo_de_inicio INT,
     numero_periodo_de_fin INT,
@@ -460,8 +321,7 @@ CREATE TABLE BOGO.Periodo
 	alquiler INT --fk
 )
 
-CREATE TABLE BOGO.Pago_alquiler
-( 
+CREATE TABLE BOGO.Pago_alquiler( 
     codigo_pago_alquiler INT PRIMARY KEY IDENTITY(1,1),
     alquiler INT, --fk
     fecha_de_pago DATETIME,
@@ -657,6 +517,63 @@ BEGIN
 	RETURN @id_inmueble;
 END
 GO
+----
+CREATE FUNCTION BOGO.OBTENER_ID_INMUEBLE(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_inmueble DECIMAL(18,0);
+	SELECT @id_inmueble = i.numero_de_inmueble FROM BOGO.Inmueble i WHERE numero_de_inmueble = @id;
+	RETURN @id_inmueble;
+END
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_ANUNCIO(@id NUMERIC(19,0)) RETURNS DECIMAL (18,0) AS
+BEGIN 
+	DECLARE @id_anuncio DECIMAL(18,0)
+	SELECT @id_anuncio =  a.numero_anuncio FROM BOGO.Anuncio a WHERE a.numero_anuncio = @id
+	RETURN @id_anuncio;
+END 
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_INQUILINO(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_inquilino DECIMAL(18,0);
+	SELECT @id_inquilino = i.codigo_inquilino FROM Bogo.Inquilino i WHERE i.dni = @id;
+	RETURN @id_inquilino;
+END
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_AGENTE(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_agente DECIMAL(18,0)
+	SELECT @id_agente = ag.codigo_agente FROM Bogo.Agente_inmobiliario ag WHERE ag.dni = @id
+	RETURN @id_agente
+END
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_PROPIETARIO(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_propietario decimal (18,0)
+	SELECT @id_propietario = p.codigo_propietario FROM Bogo.Propietario p WHERE p.dni = @id
+	RETURN @id_propietario
+END
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_Comprador(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_comprador decimal(18,0)
+	SELECT @id_comprador = c.codigo_comprador FROM Bogo.Comprador c WHERE c.dni = @id
+	RETURN @id_comprador 
+END
+GO
+
+CREATE FUNCTION BOGO.OBTENER_ID_Venta(@id NUMERIC(18,0)) RETURNS DECIMAL (18,0) AS
+BEGIN
+	DECLARE @id_venta decimal(18,0)
+	SELECT @id_venta = v.codigo_venta FROM  Bogo.Venta v WHERE v.codigo_venta = @id
+	RETURN @id_venta 
+END
+GO 
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
@@ -814,18 +731,10 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE BOGO.migrar_Pago_por_venta AS
-BEGIN
-	INSERT INTO BOGO.Pago_por_venta (importe_del_pago, cotizacion, moneda, medio_de_pago)
-		SELECT DISTINCT	PAGO_VENTA_IMPORTE, PAGO_VENTA_COTIZACION, BOGO.OBTENER_ID_Moneda(PAGO_VENTA_MONEDA), BOGO.OBTENER_ID_Medio_de_pago(PAGO_VENTA_MEDIO_PAGO) FROM gd_esquema.Maestra 
-			WHERE PAGO_VENTA_IMPORTE IS NOT NULL
-END
-GO
-
 CREATE PROCEDURE BOGO.migrar_Inmueble AS
 BEGIN
 	SET IDENTITY_INSERT BOGO.Inmueble ON
-	INSERT INTO BOGO.Inmueble (numero_de_inmueble, descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia, localidad)
+	INSERT INTO BOGO.Inmueble (numero_de_inmueble, descripcion, direccion, ambientes, superficie, fecha_de_construccion, expensas, nombre, tipo_inmueble, barrio, disposicion, orientacion, estado, provincia, localidad,propietario)
 		SELECT DISTINCT	
 			INMUEBLE_CODIGO,
 			INMUEBLE_DESCRIPCION, 
@@ -841,7 +750,8 @@ BEGIN
 			BOGO.OBTENER_ID_ORIENTACION(INMUEBLE_ORIENTACION),
 			BOGO.OBTENER_ID_ESTADO(INMUEBLE_ESTADO),
 			BOGO.OBTENER_ID_PROVINCIA(inmueble_provincia),
-			BOGO.OBTENER_ID_LOCALIDAD(inmueble_localidad)
+			BOGO.OBTENER_ID_LOCALIDAD(inmueble_localidad),
+			BOGO.OBTENER_ID_PROPIETARIO(PROPIETARIO_DNI)
 			FROM gd_esquema.Maestra 
 			WHERE INMUEBLE_NOMBRE IS NOT NULL
 	SET IDENTITY_INSERT BOGO.Inmueble OFF
@@ -867,8 +777,10 @@ GO
 
 CREATE PROCEDURE BOGO.migrar_Anuncio AS
 BEGIN
-	INSERT INTO BOGO.Anuncio (fecha_publicacion, tipo_operacion, precio_inmueble, moneda, tipo_periodo, estado_anuncio, fecha_finalizacion, costo_anuncio)
-		SELECT DISTINCT	
+	SET IDENTITY_INSERT BOGO.Anuncio ON
+	INSERT INTO BOGO.Anuncio (numero_anuncio,fecha_publicacion, tipo_operacion, precio_inmueble, moneda, tipo_periodo, estado_anuncio, fecha_finalizacion, costo_anuncio,inmueble,agente_inmobiliario)
+		SELECT DISTINCT
+			ANUNCIO_CODIGO,
 			ANUNCIO_FECHA_PUBLICACION, 
 			BOGO.OBTENER_ID_Tipo_operacion(ANUNCIO_TIPO_OPERACION), 
 			ANUNCIO_PRECIO_PUBLICADO, 
@@ -876,33 +788,46 @@ BEGIN
 			BOGO.OBTENER_ID_TIPO_PERIODO(ANUNCIO_TIPO_PERIODO),
 			BOGO.OBTENER_ID_Estado_anuncio(ANUNCIO_ESTADO),
 			ANUNCIO_FECHA_FINALIZACION,
-			ANUNCIO_COSTO_ANUNCIO
+			ANUNCIO_COSTO_ANUNCIO,
+			BOGO.OBTENER_ID_INMUEBLE(INMUEBLE_CODIGO),
+			BOGO.OBTENER_ID_AGENTE(AGENTE_DNI)
 			FROM gd_esquema.Maestra 
-			WHERE ANUNCIO_FECHA_PUBLICACION IS NOT NULL
+			WHERE ANUNCIO_FECHA_PUBLICACION IS NOT NULL and Bogo.OBTENER_ID_INMUEBLE(INMUEBLE_CODIGO) IS NOT NULL
+		SET IDENTITY_INSERT BOGO.Anuncio OFF
 END
 GO
 
 CREATE PROCEDURE BOGO.migrar_Venta AS
 BEGIN
 	SET IDENTITY_INSERT BOGO.Venta ON
-	INSERT INTO BOGO.Venta (codigo_venta, comision_inmobiliaria, fecha_de_venta, precio_venta, moneda)
+	INSERT INTO BOGO.Venta (codigo_venta, comision_inmobiliaria, fecha_de_venta, precio_venta, moneda, anuncio, comprador)
 		SELECT DISTINCT	
 			VENTA_CODIGO, 
 			VENTA_COMISION, 
 			VENTA_FECHA, 
 			VENTA_PRECIO_VENTA,
-			BOGO.OBTENER_ID_MONEDA(VENTA_MONEDA)
+			BOGO.OBTENER_ID_MONEDA(VENTA_MONEDA),
+			BOGO.OBTENER_ID_Anuncio(ANUNCIO_CODIGO),
+			BOGO.OBTENER_ID_Comprador(COMPRADOR_DNI)
 			FROM gd_esquema.Maestra 
 			WHERE VENTA_CODIGO IS NOT NULL
 	SET IDENTITY_INSERT BOGO.Venta OFF
 END
 GO
 
+CREATE PROCEDURE BOGO.migrar_Pago_por_venta AS
+BEGIN
+	INSERT INTO BOGO.Pago_por_venta (importe_del_pago, cotizacion, moneda, medio_de_pago,venta)
+		SELECT DISTINCT	PAGO_VENTA_IMPORTE, PAGO_VENTA_COTIZACION, BOGO.OBTENER_ID_Moneda(PAGO_VENTA_MONEDA), BOGO.OBTENER_ID_Medio_de_pago(PAGO_VENTA_MEDIO_PAGO),
+		BOGO.OBTENER_ID_Venta(VENTA_CODIGO) FROM gd_esquema.Maestra 
+			WHERE PAGO_VENTA_IMPORTE IS NOT NULL
+END
+GO
 
 CREATE PROCEDURE BOGO.migrar_Alquiler AS
 BEGIN
 	SET IDENTITY_INSERT BOGO.Alquiler ON
-	INSERT INTO BOGO.Alquiler (codigo_alquiler, fecha_de_inicio, fecha_de_fin, periodos, deposito, comision, gastos_de_averiguaciones, estado_alquiler)
+	INSERT INTO BOGO.Alquiler (codigo_alquiler, fecha_de_inicio, fecha_de_fin, periodos, deposito, comision, gastos_de_averiguaciones, estado_alquiler, inquilino, anuncio)
 		SELECT DISTINCT	
 			ALQUILER_CODIGO,
 			ALQUILER_FECHA_INICIO, 
@@ -911,7 +836,9 @@ BEGIN
 			ALQUILER_DEPOSITO, 
 			ALQUILER_COMISION,
 			ALQUILER_GASTOS_AVERIGUA,
-			BOGO.OBTENER_ID_Estado_alquiler(ALQUILER_ESTADO)
+			BOGO.OBTENER_ID_Estado_alquiler(ALQUILER_ESTADO),
+			BOGO.OBTENER_ID_Inquilino(INQUILINO_DNI),
+			BOGO.OBTENER_ID_Anuncio(ANUNCIO_CODIGO)
 			FROM gd_esquema.Maestra 
 			WHERE ALQUILER_FECHA_INICIO IS NOT NULL
 	SET IDENTITY_INSERT BOGO.Alquiler OFF
@@ -929,9 +856,10 @@ GO
 CREATE PROCEDURE BOGO.migrar_Pago_alquiler AS
 BEGIN
 	SET IDENTITY_INSERT BOGO.Pago_alquiler ON
-	INSERT INTO BOGO.Pago_alquiler (codigo_pago_alquiler, fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago, fecha_de_vencimiento)
+	INSERT INTO BOGO.Pago_alquiler (codigo_pago_alquiler, alquiler ,fecha_De_pago, numero_de_periodo_de_pago, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago, importe, medio_de_pago, fecha_de_vencimiento)
 		SELECT DISTINCT	
 		PAGO_ALQUILER_CODIGO, 
+		ALQUILER_CODIGO,
 		PAGO_ALQUILER_FECHA,
 		PAGO_ALQUILER_NRO_PERIODO,
 		PAGO_ALQUILER_DESC,
@@ -945,6 +873,7 @@ BEGIN
 	SET IDENTITY_INSERT BOGO.Pago_alquiler OFF
 END
 GO
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
@@ -1005,3 +934,6 @@ EXEC BOGO.Migrar_Periodo;
 GO
 EXEC BOGO.Migrar_Pago_alquiler;
 GO
+
+
+select * from bogo.Pago_por_venta
