@@ -55,6 +55,7 @@ IF OBJECT_ID('BOGO.BI_migrar_alquiler') IS NOT NULL DROP PROCEDURE BOGO.BI_migra
 -- BORRADO DE VISTAS
 IF OBJECT_ID('BOGO.v_duracion_promedio_dias_anuncio') IS NOT NULL DROP VIEW BOGO.v_duracion_promedio_dias_anuncio
 IF OBJECT_ID('BOGO.v_promedio_precio_anuncio') IS NOT NULL DROP VIEW BOGO.v_promedio_precio_anuncio
+IF OBJECT_ID('BOGO.v_5_barrios_mas_elegidos_rango_etario') IS NOT NULL DROP VIEW BOGO.v_5_barrios_mas_elegidos_rango_etario
 
 
 ---------------------------------------------------------------------------------------------------
@@ -528,23 +529,19 @@ CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 	GROUP BY tipo_operacion.nombre, tipo_inmueble.nombre, rs.descipcion_rango, tiempo.anio, tiempo.cuatrimestre, m.descripcion
 GO
 
-/*
-3. Los 5 barrios más elegidos para alquilar en función del rango etario de los inquilinos para cada cuatrimestre/año. Se calcula en función de los alquileres
-dados de alta en dicho periodo.
-*/
--- no me sale :(
-/*
+-- View 3 ok
 CREATE VIEW BOGO.v_5_barrios_mas_elegidos_rango_etario AS
-	SELECT tiempo.anio as "Año", tiempo.cuatrimestre as "N° cuatrimestre", e.rango AS "Rango etario", b.cod_barrio AS "Barrio"
-		FROM BOGO.Inquilino i
-		INNER JOIN BOGO.Alquiler a ON a.inquilino = i.codigo_inquilino
-		INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = a.inquilino
-		INNER JOIN BOGO.BI_Barrio b ON b.cod_barrio = inm.barrio
-		INNER JOIN BOGO.bi_edad e ON e.rango = i.fecha_nacimiento
-		INNER JOIN BOGO.BI_Tiempo tiempo ON tiempo.codigo_tiempo = a.fecha_de_inicio
-		GROUP BY tiempo.anio, tiempo.cuatrimestre , e.rango, b.cod_barrio
-		HAVING i.codigo_inquilino IN (select top 5 barrio from bogo.BI_Barrio)
-*/
+	SELECT barrios.anio AS "Año", barrios.cuatrimestre AS "Cuatrimestre", barrios.rango AS "Rango", barrios.descripcion AS "Descripción"
+	FROM (SELECT temp.anio, temp.cuatrimestre, ed.rango, barr.descripcion,
+	ROW_NUMBER() OVER (PARTITION BY temp.anio,temp.cuatrimestre,ed.rango ORDER BY COUNT(alq.codigo_alquiler) DESC) AS Ranking
+	FROM Bogo.BI_Alquiler alq
+	INNER JOIN BOGO.BI_Tiempo temp ON alq.codigo_tiempo = temp.codigo_tiempo
+	INNER JOIN BOGO.BI_Edad ed ON alq.codigo_edad = ed.id_edad
+	INNER JOIN BOGO.BI_Barrio barr ON barr.cod_barrio = alq.codigo_barrio
+	GROUP BY temp.anio,temp.cuatrimestre,ed.rango,barr.descripcion
+	) AS barrios 
+	WHERE Ranking <= 5
+GO 
 
 /*
 4. Porcentaje de incumplimiento de pagos de alquileres en término por cada mes/año. Se calcula en función de las fechas de pago y fecha de vencimiento del
