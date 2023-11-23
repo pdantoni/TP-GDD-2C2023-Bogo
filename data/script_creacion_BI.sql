@@ -19,12 +19,14 @@ IF OBJECT_ID('BOGO.BI_rangos_superficie', 'U') IS NOT NULL DROP TABLE BOGO.BI_ra
 IF OBJECT_ID('BOGO.BI_Ambientes', 'U') IS NOT NULL DROP TABLE BOGO.BI_Ambientes
 IF OBJECT_ID('BOGO.BI_Ubicacion', 'U') IS NOT NULL DROP TABLE BOGO.BI_Ubicacion
 IF OBJECT_ID('BOGO.BI_Anuncios', 'U') IS NOT NULL DROP TABLE BOGO.BI_Anuncios
-IF OBJECT_ID('BOGO.BI_Edad', 'U') IS NOT NULL DROP TABLE BOGO.BI_Edad
 IF OBJECT_ID('BOGO.BI_Fecha_publicacion', 'U') IS NOT NULL DROP TABLE BOGO.BI_Fecha_publicacion
 IF OBJECT_ID('BOGO.BI_Fecha_finalizacion', 'U') IS NOT NULL DROP TABLE BOGO.BI_Fecha_finalizacion
 IF OBJECT_ID('BOGO.BI_Barrio', 'U') IS NOT NULL DROP TABLE BOGO.BI_Barrio
 IF OBJECT_ID('BOGO.BI_Edad', 'U') IS NOT NULL DROP TABLE BOGO.BI_Edad
 IF OBJECT_ID('BOGO.BI_Alquiler', 'U') IS NOT NULL DROP TABLE BOGO.BI_Alquiler
+-- IF OBJECT_ID('BOGO.BI_estado_Alquiler', 'U') IS NOT NULL DROP TABLE BOGO.BI_estado_Alquiler
+-- IF OBJECT_ID('BOGO.BI_pago_alquiler', 'U') IS NOT NULL DROP TABLE BOGO.BI_pago_alquiler
+-- IF OBJECT_ID('BOGO.BI_venta', 'U') IS NOT NULL DROP TABLE BOGO.BI_venta
 
 -- BORRADO DE FUNCIONES
 IF OBJECT_ID('BOGO.OBTENER_ID_RANGO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_RANGO
@@ -46,6 +48,9 @@ IF OBJECT_ID('BOGO.bi_migrar_anuncios') IS NOT NULL DROP PROCEDURE BOGO.bi_migra
 IF OBJECT_ID('BOGO.BI_migrar_barrios') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_barrios
 IF OBJECT_ID('BOGO.BI_migrar_Edad') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_Edad
 IF OBJECT_ID('BOGO.BI_migrar_alquiler') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_alquiler
+-- IF OBJECT_ID('BOGO.BI_migrar_estado_alquiler') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_estado_alquiler
+-- IF OBJECT_ID('BOGO.BI_migrar_pago_alquiler') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_pago_alquiler
+-- IF OBJECT_ID('BOGO.BI_migrar_venta') IS NOT NULL DROP PROCEDURE BOGO.BI_migrar_venta
 
 -- BORRADO DE VISTAS
 IF OBJECT_ID('BOGO.v_duracion_promedio_dias_anuncio') IS NOT NULL DROP VIEW BOGO.v_duracion_promedio_dias_anuncio
@@ -157,6 +162,35 @@ CREATE TABLE BOGO.BI_Pago_alquiler(
 	alquiler INT, --fk
     fecha_de_pago DATETIME,
 	fecha_de_vencimiento DATETIME
+) ????
+
+CREATE TABLE BOGO.BI_estado_Alquiler(
+	estado_alquiler INT PRIMARY KEY IDENTITY (1,1),
+	nombre NVARCHAR(100) NULL
+
+)
+
+CREATE TABLE BOGO.BI_pago_alquiler(
+	codigo_pago_alquiler INT PRIMARY KEY IDENTITY (1,1), 
+	alquiler INT,
+    fecha_de_pago DATETIME,
+	fecha_de_vencimiento DATETIME,
+    numero_de_periodo_de_pago INT,
+    fecha_de_inicio_periodo_de_pago DATETIME,
+    fecha_de_fin_periodo_de_pago DATETIME,
+    descripcion VARCHAR(150),
+    importe FLOAT,
+	PRIMARY KEY (codigo_pago_alquiler, alquiler)
+)
+
+CREATE TABLE BOGO.BI_venta(
+	codigo_venta INT,
+	superficie_total_inmueble INT,
+	localidad INT,
+	tiempo INT NOT NULL,
+	precio_venta INT,
+	tipo_inmueble INT,
+	precio_m2 INT 
 )
 */
 -- CREACION DE PKs COMPUESTAS
@@ -201,6 +235,7 @@ BEGIN
 		IF(@rango >= 100) SET @id = 5
 	RETURN @id
 END
+GO
 
 CREATE FUNCTION BOGO.OBTENER_RANGO_EDAD(@FECHA_NACIMIENTO DATE) RETURNS DECIMAL(18) AS
 BEGIN
@@ -288,6 +323,7 @@ BEGIN
 	INSERT INTO BOGO.BI_rangos_superficie(limite_inferior,limite_superior,descipcion_rango) VALUES (75,100,'75-100')
 	INSERT INTO BOGO.BI_rangos_superficie(limite_inferior,limite_superior,descipcion_rango) VALUES (100,null,'>100')
 END
+GO
 
 CREATE PROCEDURE BOGO.bi_migrar_ambientes AS
 BEGIN
@@ -311,11 +347,13 @@ CREATE PROCEDURE BOGO.bi_migrar_fecha_publicacion AS
 BEGIN 
 	INSERT INTO BOGO.BI_Fecha_publicacion(fecha_publicacion) SELECT DISTINCT Cast(a.fecha_publicacion as date) AS "Anio" FROM Bogo.Anuncio a ORDER BY anio
 END
+GO 
 
 CREATE PROCEDURE BOGO.bi_migrar_fecha_finalizacion AS 
 BEGIN 
 	INSERT INTO BOGO.BI_Fecha_finalizacion(fecha_finalizacion) SELECT DISTINCT Cast(a.fecha_finalizacion as date) AS "Anio" FROM Bogo.Anuncio a ORDER BY anio
 END
+GO
 
 CREATE PROCEDURE BOGO.bi_migrar_anuncios AS
 BEGIN
@@ -347,6 +385,7 @@ BEGIN
 		INNER JOIN BOGO.BI_rangos_superficie ra_super on ra_super.codigo_m2 = Bogo.Obtener_ID_Rango(inm.superficie)
 		INNER JOIN BOGO.BI_Ambientes amb on amb.cantidad = inm.ambientes
 END
+GO
 
 CREATE PROCEDURE BOGO.BI_migrar_barrios AS 
 BEGIN 
@@ -354,6 +393,7 @@ BEGIN
 	INSERT INTO BOGO.BI_Barrio(cod_barrio,descripcion) SELECT barr.codigo_barrio, barr.nombre FROM BOGO.Barrio barr
 	SET IDENTITY_INSERT Bogo.BI_Barrio OFF
 END
+GO
 
 CREATE PROCEDURE BOGO.BI_migrar_Edad AS
 BEGIN
@@ -362,6 +402,7 @@ BEGIN
 	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (35, 50, '35-50')
 	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (50, null, '>50')
 END
+GO
 
 CREATE PROCEDURE BOGO.BI_migrar_alquiler AS
 BEGIN
@@ -375,6 +416,42 @@ BEGIN
 	INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = an.inmueble
 	INNER JOIN BOGO.BI_Barrio b ON b.cod_barrio = inm.barrio
 END	
+GO
+
+
+/*
+-- TODO view 5
+CREATE PROCEDURE BOGO.BI_migrar_estado_alquiler AS 
+BEGIN 
+	INSERT INTO BOGO.BI_estado_alquiler
+	SELECT DISTINCT estado_alquiler, nombre FROM BOGO.estado_alquiler
+END 
+GO
+
+CREATE PROCEDURE BOGO.BI_migrar_pago_alquiler AS
+BEGIN
+	INSERT INTO BOGO.BI_pago_alquiler
+	SELECT DISTINCT codigo_pago_alquiler, alquiler, numero_de_periodo_de_pago, fecha_de_pago, importe, fecha_de_vencimiento, descripcion, fecha_de_inicio_periodo_de_pago, fecha_de_fin_periodo_de_pago 
+	FROM BOGO.pago_alquiler
+END
+GO
+
+CREATE PROCEDURE BOGO.BI_migrar_venta AS
+BEGIN
+			INSERT INTO BOGO.BI_venta (codigo_venta, superficie_total_inmueble, localidad, precio_venta, tipo_inmueble, precio_m2, tiempo)
+			SELECT v.codigo_venta, ra_super.codigo_m2, u.codigo_localidad, v.precio_venta, inm.tipo_inmueble, 
+			FROM BOGO.venta v
+			INNER JOIN BOGO.Anuncio an ON an.numero_anuncio = v.anuncio
+			INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = an.inmueble
+			INNER JOIN BOGO.BI_ubicacion u ON u.codigo_localidad = inm.localidad
+			INNER JOIN BOGO.BI_rangos_superficie ra_super on ra_super.codigo_m2 = Bogo.Obtener_ID_Rango(inm.superficie)
+			INNER JOIN BOGO.Inmueble inm ON inm.tipo_inmueble = an.inmueble
+			-- FALTA PRECIO_M2 creo que falta una funcion para esto
+			INNER JOIN BOGO.BI_Tiempo ti ON 
+END		
+*/
+		
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
@@ -429,6 +506,7 @@ CREATE VIEW BOGO.v_duracion_promedio_dias_anuncio AS
 		INNER JOIN BOGO.BI_Fecha_publicacion fecha_p ON fecha_p.codigo = an.codigo_fecha_alta
 		INNER JOIN BOGO.BI_Fecha_publicacion fecha_f ON fecha_f.codigo= an.codigo_fecha_baja
 	GROUP BY tipo_operacion.nombre, ubi.nombre_barrio, amb.cantidad, tiempo.anio, tiempo.cuatrimestre
+GO
 
 -- View 2 ok
 CREATE VIEW BOGO.v_promedio_precio_anuncio AS
@@ -448,53 +526,76 @@ CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 		INNER JOIN BOGO.BI_Fecha_publicacion fecha_f ON fecha_f.codigo = an.codigo_fecha_baja
 		INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = an.codigo_moneda
 	GROUP BY tipo_operacion.nombre, tipo_inmueble.nombre, rs.descipcion_rango, tiempo.anio, tiempo.cuatrimestre, m.descripcion
+GO
 
 /*
 3. Los 5 barrios más elegidos para alquilar en función del rango etario de los inquilinos para cada cuatrimestre/año. Se calcula en función de los alquileres
 dados de alta en dicho periodo.
 */
--- TODO
+-- no me sale :(
+/*
+CREATE VIEW BOGO.v_5_barrios_mas_elegidos_rango_etario AS
+	SELECT tiempo.anio as "Año", tiempo.cuatrimestre as "N° cuatrimestre", e.rango AS "Rango etario", b.cod_barrio AS "Barrio"
+		FROM BOGO.Inquilino i
+		INNER JOIN BOGO.Alquiler a ON a.inquilino = i.codigo_inquilino
+		INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = a.inquilino
+		INNER JOIN BOGO.BI_Barrio b ON b.cod_barrio = inm.barrio
+		INNER JOIN BOGO.bi_edad e ON e.rango = i.fecha_nacimiento
+		INNER JOIN BOGO.BI_Tiempo tiempo ON tiempo.codigo_tiempo = a.fecha_de_inicio
+		GROUP BY tiempo.anio, tiempo.cuatrimestre , e.rango, b.cod_barrio
+		HAVING i.codigo_inquilino IN (select top 5 barrio from bogo.BI_Barrio)
+*/
 
+/*
+4. Porcentaje de incumplimiento de pagos de alquileres en término por cada mes/año. Se calcula en función de las fechas de pago y fecha de vencimiento del
+mismo. El porcentaje es en función del total de pagos en dicho periodo.
+*/
 
+/*
+5. Porcentaje promedio de incremento del valor de los alquileres para los contratos en curso por mes/año. Se calcula tomando en cuenta el último pago
+con respecto al del mes en curso, únicamente de aquellos alquileres que hayan tenido aumento y están activos.
+*/
+/*
+CREATE VIEW ABC.v_aumento_promedio_de_precios_de_cada_proveedor_anual AS
+	SELECT t.anio AS Anio, p.razon_social AS Razon_Social_Proveedor, (MAX(c.precio_unitario) - MIN(c.precio_unitario)) / MIN(c.precio_unitario) AS Aumento_Promedio
+		FROM ABC.bi_compras_productos c INNER JOIN ABC.bi_tiempo t ON c.id_tiempo = t.id_tiempo
+											 INNER JOIN ABC.bi_proveedor p ON c.id_proveedor = p.proveedor_id
+		GROUP BY t.anio, p.razon_social
+GO
+*/
+
+/*
+6. Precio promedio de m2 de la venta de inmuebles según el tipo de inmueble y la localidad para cada cuatrimestre/año. Se calcula en función de las ventas
+concretadas.
+*/
+/*
+CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
+	SELECT BI_TIPO_INMUEBLE_DETALLE, BI_LOCALIDAD_DETALLE, BI_TIEMPO_ANIO, BI_TIEMPO_CUATRIMESTRE, AVG(BI_VENTA_PRECIO_M2) AS PROM_PRECIO_M2
+FROM BOGO.BI_VENTA 
+JOIN BOGO.BI_TIPO_INMUEBLE ON BI_VENTA_TIPO_INMUEBLE= BI_TIPO_INMUEBLE_CODIGO
+JOIN BOGO.BI_LOCALIDAD ON BI_VENTA_LOCALIDAD = BI_LOCALIDAD_CODIGO
+JOIN BOGO.BI_TIEMPO ON BI_VENTA_TIEMPO = BI_TIEMPO_CODIGO
+GROUP BY  BI_TIPO_INMUEBLE_DETALLE, BI_LOCALIDAD_DETALLE, BI_TIEMPO_ANIO, BI_TIEMPO_CUATRIMESTRE
+*/
+
+/*
+7. Valor promedio de la comisión según el tipo de operación (alquiler, venta, etc) y sucursal para cada cuatrimestre/año. Se calcula en función de los alquileres y
+ventas concretadas dentro del periodo.
+*/
 
 
 /*
-Precio promedio de los anuncios de inmuebles según el tipo de operación
-(alquiler, venta, etc), tipo de inmueble y rango m2 para cada cuatrimestre/año.
-Se consideran todos los anuncios que se dieron de alta en ese cuatrimestre. El
-precio se debe expresar en el tipo de moneda que corresponda, identificando de
-cuál se trata.
+8. Porcentaje de operaciones concretadas (tanto de alquileres como ventas) por cada sucursal, según el rango etario de los empleados por año en función de la
+cantidad de anuncios publicados en ese mismo año.*/
+/*
+CREATE VIEW ABC.v_porcentaje_de_envios_realizados_a_cada_provincia AS
+	SELECT t.anio AS Anio, t.mes AS Mes, p.nombre AS Provincia, 100 * SUM(e.cantidad) / (SELECT SUM(e1.cantidad) FROM ABC.bi_envios e1 WHERE e.id_tiempo=e1.id_tiempo GROUP BY e1.id_tiempo) AS Porcentaje
+		FROM ABC.bi_envios e INNER JOIN ABC.bi_tiempo t ON e.id_tiempo = t.id_tiempo
+								  INNER JOIN ABC.bi_provincia p ON e.id_provincia = p.provincia_id
+		GROUP BY t.anio, t.mes, p.nombre, e.id_tiempo
+GO
 */
--- Precio promedio de cada autoparte, vendida y comprada
-CREATE VIEW BOGO.v_precio_promedio_anuncios AS
-	SELECT al.codigo_anuncio, al.precio_promedio_anuncio, ve.precio_promedio_venta
-	FROM (
-			SELECT an.codigo_anuncio, CONVERT(DECIMAL(18,2), COALESCE(SUM(an. ) / SUM(ca.cantidad_comprada), 0)) as precio_promedio_anuncio
-				FROM BOGO.bi_anuncios an
-			GROUP BY an.codigo_anuncio
-		) al
-	JOIN
-		(
-			SELECT va.codigo_autoparte, CONVERT(DECIMAL(18,2), COALESCE(SUM(va.total_vendido) / SUM(va.cantidad_vendida), 0)) as precio_promedio_venta
-			FROM BOGO.bi_venta_autopartes va
-			GROUP BY va.codigo_autoparte
-		) ve ON p.codigo_autoparte = ve.codigo_autoparte
-GO
 
-
-/* 3. Los 5 barrios más elegidos para alquilar en función del rango etario de los inquilinos para cada cuatrimestre/año. Se calcula en función de los alquileres
-dados de alta en dicho periodo.
-
-CREATE VIEW BOGO.v_barrios_por_rango_etario AS
-	SELECT t.anio AS Anio, t.mes AS Mes, e.rango AS Rango_Etario, cp.categoria AS Barrio
-		FROM BOGO.bi_alquiler v INNER JOIN BOGO.bi_barrio cp ON v.id_barrio = cp.categoria_id
-											INNER JOIN BOGO.bi_edad e ON v.id_edad = e.id_edad
-											INNER JOIN BOGO.bi_tiempo t ON v.id_tiempo = t.id_tiempo
-		WHERE v.id_barrio IN (SELECT TOP 5 v1.id_barrio
-											 FROM BOGO.bi_alquiler v1
-											 WHERE v1.id_edad = v.id_edad AND v1.id_tiempo = v.id_tiempo
-											 GROUP BY v1.id_barrio
-											 ORDER BY SUM(v1.cantidad) DESC)
-		GROUP BY t.anio, t.mes, e.rango, cp.categoria 
-GO
+/*
+9. Monto total de cierre de contratos por tipo de operación (tanto de alquileres como ventas) por cada cuatrimestre y sucursal, diferenciando el tipo de moneda.
 */
