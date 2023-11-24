@@ -529,7 +529,7 @@ BEGIN
 		CAST(pg.fecha_de_pago AS DATE) as "Fecha de pago", 
 		pg.importe as "Importe", 
 		CAST(pg.fecha_de_vencimiento AS DATE) AS "Fecha de vencimiento",
-		CASE WHEN pg.fecha_de_pago <= pg.fecha_de_vencimiento THEN 1 ELSE 0 END AS "Pago a tiempo",
+		CASE WHEN pg.fecha_de_pago < pg.fecha_de_vencimiento THEN 1 ELSE 0 END AS "Pago a tiempo",
 		ti.codigo_tiempo,
 		ea.estado_alquiler 
 	FROM BOGO.pago_alquiler pg
@@ -558,7 +558,6 @@ BEGIN
 END			
 GO		
 
-select * from bogo.BI_estado_inmueble
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
 ---------------------------------------------------------------------------------------------------
@@ -663,14 +662,16 @@ CREATE VIEW BOGO.v_porcentaje_incumplimiento_de_pagos AS
 	SELECT	t.anio AS "Año", 
 			t.mes AS "Mes", 
 			CONCAT(
-			(SELECT COUNT(*) FROM BOGO.BI_pago_alquiler pa 
-							 INNER JOIN BOGO.BI_tiempo ti on ti.codigo_tiempo = pa.codigo_tiempo
-							 WHERE ti.anio = t.anio  and ti.mes = t.mes and pa.pago_a_tiempo = 0) * 100 / COUNT(*), '%')
+			(SELECT COUNT(DISTINCT pg.codigo_pago_alquiler) * 100 / COUNT(DISTINCT codigo_pago_alquiler) 
+			FROM BOGO.BI_pago_alquiler pa 
+			INNER JOIN BOGO.BI_tiempo ti on ti.codigo_tiempo = pa.codigo_tiempo
+			WHERE ti.anio = t.anio and ti.mes = t.mes), '%')
 			AS "Porcentaje de incumplimiento de pago"
 	FROM BOGO.BI_pago_alquiler pg
-	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = pg.codigo_tiempo
+	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = pg.codigo_tiempo WHERE pg.fecha_de_pago < pg.fecha_de_vencimiento
 	GROUP BY t.anio, t.mes
 GO
+
 
 -- vista 5
 CREATE VIEW BOGO.v_promedio_de_incremento_del_valor_de_los_alquileres AS
@@ -686,7 +687,7 @@ GO
 
 -- View 6 ok
 CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
-	SELECT t.cuatrimestre, t.anio, l.descripcion, ti.nombre, AVG(v.precio_m2) AS "Precio promedio m2"
+	SELECT t.cuatrimestre, t.anio, l.descripcion, ti.nombre, CONCAT(CAST(AVG(v.precio_m2) AS DECIMAL(12,2)), '$') AS "Precio promedio m2"
 	FROM BOGO.BI_Venta v
 	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = v.codigo_tiempo
 	INNER JOIN BOGO.BI_Tipo_Inmueble ti ON ti.codigo_tipo_inmueble = v.codigo_estado_inmueble
@@ -716,4 +717,3 @@ GO
 9. Monto total de cierre de contratos por tipo de operación (tanto de alquileres como ventas) por cada cuatrimestre y sucursal, diferenciando el tipo de moneda.
 */
 
-select * from BOGO.v_porcentaje_incumplimiento_de_pagos
