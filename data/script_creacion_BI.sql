@@ -191,8 +191,8 @@ CREATE TABLE BOGO.BI_Anuncios(
 	codigo_rango_superficie INT, 
 	codigo_ambientes INT, 
 	codigo_ubicacion INT, 
-	duracion_promedio DECIMAL(12,2),  -- renombrar a precio_anuncio
-	precio_promedio DECIMAL(12,2),
+	duracion_anuncio DECIMAL(12,2),  
+	precio_anuncio DECIMAL(12,2),
 	inmueble INT,
 	PRIMARY KEY (codigo_anuncio, codigo_fecha_alta, codigo_fecha_baja,  codigo_tiempo, codigo_tipo_operacion, codigo_tipo_inmueble, codigo_moneda, codigo_rango_superficie, codigo_ambientes, codigo_ubicacion)
 )
@@ -301,6 +301,7 @@ ALTER TABLE BOGO.BI_agente_inmobiliario
 	ADD FOREIGN KEY (sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal)
 GO
 
+
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 3                                            --
 ---------------------------------------------------------------------------------------------------
@@ -354,23 +355,6 @@ BEGIN
 	RETURN @valor;
 END
 GO
--- Devuelve el ID para un año y mes específico
-/*
-CREATE FUNCTION BOGO.ID_TIEMPO(@fecha DATE) RETURNS DECIMAL(18) AS
-BEGIN
-	DECLARE @anio DECIMAL(4),
-			@mes DECIMAL(2),
-			@id_tiempo DECIMAL(18)
-
-	SET @anio = DATEPART(YEAR, @fecha)
-	SET @mes = DATEPART(MONTH, @fecha)
-
-	SELECT @id_tiempo = id_tiempo FROM BOGO.BI_tiempo WHERE anio = @anio AND mes = @mes
-
-	RETURN @id_tiempo
-END
-GO
-*/
 
 CREATE FUNCTION BOGO.OBTENER_TOTAL_ALQUILER(@alquiler INT) RETURNS INT AS
 BEGIN
@@ -381,6 +365,7 @@ BEGIN
 	RETURN @monto;
 END
 GO
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
@@ -530,7 +515,7 @@ GO
 -- PROCEDURES PARA TABLAS DE HECHOS
 CREATE PROCEDURE BOGO.BI_migrar_anuncios AS
 BEGIN
-	INSERT INTO BOGO.BI_Anuncios(codigo_anuncio, codigo_tiempo, codigo_fecha_alta, codigo_fecha_baja, codigo_tipo_inmueble, codigo_moneda, codigo_ambientes, codigo_tipo_operacion, codigo_rango_superficie, duracion_promedio, codigo_ubicacion, precio_promedio) 
+	INSERT INTO BOGO.BI_Anuncios(codigo_anuncio, codigo_tiempo, codigo_fecha_alta, codigo_fecha_baja, codigo_tipo_inmueble, codigo_moneda, codigo_ambientes, codigo_tipo_operacion, codigo_rango_superficie, duracion_anuncio, codigo_ubicacion, precio_anuncio) 
 	SELECT  a.numero_anuncio,
 			ti.codigo_tiempo,
 			fecha_p.codigo,
@@ -698,7 +683,7 @@ CREATE VIEW BOGO.v_duracion_promedio_dias_anuncio AS
 			amb.cantidad as "Cantidad ambientes",
 			tiempo.anio as "Año",
 			tiempo.cuatrimestre as "N° cuatrimestre",
-			CAST (SUM(an.duracion_promedio)/COUNT(an.codigo_anuncio) AS INT) AS "Duracion promedio en días"
+			CAST (SUM(an.duracion_anuncio)/COUNT(an.codigo_anuncio) AS INT) AS "Duracion promedio en días"
 	FROM Bogo.BI_Anuncios an
 		INNER JOIN BOGO.BI_Tipo_operacion tipo_operacion ON tipo_operacion.codigo_tipo_operacion = an.codigo_tipo_operacion
 		INNER JOIN BOGO.BI_Ubicacion ubi ON ubi.codigo_ubicacion = an.codigo_ubicacion
@@ -717,7 +702,7 @@ CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 			tiempo.anio as "Año",
 			tiempo.cuatrimestre as "N° cuatrimestre",
 			m.descripcion as "Tipo de moneda",
-			CAST (SUM(an.precio_promedio)/COUNT(an.codigo_anuncio) AS DECIMAL(10,2)) AS "Precio promedio"
+			CAST (SUM(an.precio_anuncio)/COUNT(an.codigo_anuncio) AS DECIMAL(10,2)) AS "Precio promedio"
 	FROM Bogo.BI_Anuncios an
 		INNER JOIN BOGO.BI_Tipo_operacion tipo_operacion ON tipo_operacion.codigo_tipo_operacion = an.codigo_tipo_operacion
 		INNER JOIN BOGO.BI_Tipo_Inmueble tipo_inmueble ON tipo_inmueble.codigo_tipo_inmueble = an.codigo_tipo_inmueble
