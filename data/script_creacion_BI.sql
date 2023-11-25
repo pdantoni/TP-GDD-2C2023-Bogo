@@ -40,6 +40,7 @@ IF OBJECT_ID('BOGO.OBTENER_RANGO_EDAD') IS NOT NULL DROP FUNCTION BOGO.OBTENER_R
 IF OBJECT_ID('BOGO.OBTENER_CUATRIMESTRE') IS NOT NULL DROP FUNCTION BOGO.OBTENER_CUATRIMESTRE
 IF OBJECT_ID('BOGO.OBTENER_ID_SUCURSAL') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_SUCURSAL
 IF OBJECT_ID('BOGO.OBTENER_TOTAL_ALQUILER') IS NOT NULL DROP FUNCTION BOGO.OBTENER_TOTAL_ALQUILER
+IF OBJECT_ID('BOGO.OBTENER_ID_TIEMPO') IS NOT NULL DROP FUNCTION BOGO.OBTENER_ID_TIEMPO
 
 -- BORRADO DE PROCEDURES
 IF OBJECT_ID('BOGO.BI_cargar_edad') IS NOT NULL DROP PROCEDURE BOGO.BI_cargar_edad
@@ -301,6 +302,10 @@ ALTER TABLE BOGO.BI_agente_inmobiliario
 	ADD FOREIGN KEY (sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal)
 GO
 
+ALTER TABLE BOGO.BI_sucursal
+	ADD FOREIGN KEY (codigo_sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal)
+GO
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 3                                            --
@@ -365,7 +370,21 @@ BEGIN
 	RETURN @monto;
 END
 GO
+-- ver
+CREATE FUNCTION BOGO.OBTENER_ID_TIEMPO(@fecha DATE) RETURNS INT AS
+BEGIN
+	DECLARE @anio DECIMAL(4),
+			@mes DECIMAL(2),
+			@id_tiempo DECIMAL(18)
 
+	SET @anio = DATEPART(YEAR, @fecha)
+	SET @mes = DATEPART(MONTH, @fecha)
+
+	SELECT @id_tiempo = codigo_tiempo FROM BOGO.BI_Tiempo WHERE anio = @anio AND mes = @mes
+
+	RETURN @id_tiempo
+END
+GO
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 4                                            --
@@ -497,7 +516,8 @@ GO
 CREATE PROCEDURE Bogo.BI_migrar_sucursal AS
 BEGIN
 	SET IDENTITY_INSERT Bogo.BI_sucursal ON 
-	INSERT INTO Bogo.BI_sucursal(codigo_sucursal,descripcion) SELECT s.codigo_sucursal, s.nombre FROM Bogo.Sucursal s
+	INSERT INTO Bogo.BI_sucursal(codigo_sucursal,descripcion) 
+	SELECT s.codigo_sucursal, s.nombre FROM Bogo.Sucursal s
 	SET IDENTITY_INSERT Bogo.BI_sucursal OFF
 END
 GO
@@ -569,7 +589,7 @@ BEGIN
 		CAST(pg.fecha_de_pago AS DATE) as "Fecha de pago", 
 		pg.importe as "Importe", 
 		CAST(pg.fecha_de_vencimiento AS DATE) AS "Fecha de vencimiento",
-		CASE WHEN pg.fecha_de_pago < pg.fecha_de_vencimiento THEN 1 ELSE 0 END AS "Pago a tiempo",
+		CASE WHEN pg.fecha_de_pago <= pg.fecha_de_vencimiento THEN 1 ELSE 0 END AS "Pago a tiempo",
 		ti.codigo_tiempo,
 		ea.estado_alquiler 
 	FROM BOGO.pago_alquiler pg
@@ -601,7 +621,7 @@ GO
 CREATE PROCEDURE BOGO.BI_migrar_operaciones AS
 BEGIN
 	INSERT INTO BOGO.BI_operaciones (codigo_empleado, codigo_edad, codigo_anuncio, codigo_moneda, codigo_tiempo, codigo_sucursal, codigo_tipo_operacion, comision, monto_total)
-	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, s.codigo_sucursal, tip.codigo_tipo_operacion, v.comision_inmobiliaria, v.precio_venta
+	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, ISNULL(s.codigo_sucursal, 0), tip.codigo_tipo_operacion, v.comision_inmobiliaria, v.precio_venta
 	FROM BOGO.Venta v
 	LEFT JOIN BOGO.anuncio a ON a.numero_anuncio = v.anuncio
 	LEFT JOIN BOGO.BI_Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
@@ -611,7 +631,7 @@ BEGIN
 	LEFT JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ai.sucursal
 	LEFT JOIN BOGO.BI_Tipo_operacion tip ON tip.codigo_tipo_operacion = a.tipo_operacion
 	UNION
-	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, s.codigo_sucursal, tip.codigo_tipo_operacion, al.comision, ISNULL(BOGO.OBTENER_TOTAL_ALQUILER(codigo_alquiler), al.deposito) AS "Precio alquiler"
+	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, ISNULL(s.codigo_sucursal, 0), tip.codigo_tipo_operacion, al.comision, ISNULL(BOGO.OBTENER_TOTAL_ALQUILER(codigo_alquiler), al.deposito) AS "Precio alquiler"
 	FROM BOGO.Alquiler al
 	LEFT JOIN BOGO.anuncio a ON a.numero_anuncio = al.anuncio
 	LEFT JOIN BOGO.BI_Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
@@ -742,18 +762,16 @@ CREATE VIEW BOGO.v_porcentaje_incumplimiento_de_pagos AS
 	GROUP BY t.anio, t.mes
 GO
 
-/*
-Porcentaje promedio de incremento del valor de los alquileres para los contratos en curso por mes/año. Se calcula tomando en cuenta el último pago
-con respecto al del mes en curso, únicamente de aquellos alquileres que hayan tenido aumento y están activos.
-*/
 -- vista 5
 CREATE VIEW BOGO.v_promedio_de_incremento_del_valor_de_los_alquileres AS
-    SELECT MONTH(pg.fecha_de_pago) AS "Mes", 
+    SELECT  MONTH(pg.fecha_de_pago) AS "Mes", 
 		   YEAR(pg.fecha_de_pago) AS "Año",
-		   AVG(((pg.importe - anterior.importe)/anterior.importe)*100) AS "Promedio de incremento del importe"
+		   CONCAT(CAST(AVG(((pg.importe - anterior.importe)/anterior.importe)*100) AS DECIMAL(12,2)), ' %') AS "Promedio de incremento del importe"
     FROM BOGO.BI_pago_alquiler pg
-    LEFT JOIN BOGO.BI_pago_alquiler anterior ON MONTH(anterior.fecha_de_pago) = MONTH(pg.fecha_de_pago) - 1
-    LEFT JOIN BOGO.BI_Alquiler alq ON alq.codigo_alquiler = pg.alquiler and alq.codigo_alquiler = anterior.alquiler-- AND MONTH(alq.fecha_de_inicio) <= MONTH(anterior.fecha_de_pago)
+	
+	LEFT JOIN BOGO.BI_pago_alquiler anterior ON bogo.OBTENER_ID_TIEMPO(anterior.fecha_de_pago) = bogo.OBTENER_ID_TIEMPO(pg.fecha_de_pago) - 1
+	--INNER JOIN BOGO.BI_Tiempo t2 ON t2.codigo_tiempo = anterior.codigo_tiempo
+    LEFT JOIN BOGO.BI_Alquiler alq ON alq.codigo_alquiler = pg.alquiler and alq.codigo_alquiler = anterior.alquiler AND MONTH(alq.fecha_de_inicio) <= MONTH(anterior.fecha_de_pago)
     LEFT JOIN BOGO.BI_estado_Alquiler ealq ON ealq.estado_alquiler = alq.estado_alquiler
     WHERE pg.importe > anterior.importe AND ealq.estado_alquiler = 3 -- 'Activo'
     GROUP BY MONTH(pg.fecha_de_pago), YEAR(pg.fecha_de_pago)
