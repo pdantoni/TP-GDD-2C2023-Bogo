@@ -714,7 +714,7 @@ BEGIN
 			WHERE COMPRADOR_NOMBRE IS NOT NULL
 END
 GO
-
+-- VER FALTA SUCURSAL
 CREATE PROCEDURE BOGO.migrar_Agente_inmobiliario AS
 BEGIN
 	INSERT INTO BOGO.Agente_inmobiliario (nombre, apellido, dni, telefono, fecha_nacimiento, mail, fecha_registro)
