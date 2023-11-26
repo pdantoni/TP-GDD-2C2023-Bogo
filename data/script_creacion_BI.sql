@@ -695,8 +695,8 @@ GO
 --                                            Parte 6                                            --
 ---------------------------------------------------------------------------------------------------
 
---  CREACIÓN DE LAS VISTAS
--- View 1 ok
+-- CREACIÓN DE LAS VISTAS
+-- Vista 1 
 CREATE VIEW BOGO.v_duracion_promedio_dias_anuncio AS
 	SELECT  tipo_operacion.nombre as "Tipo operación",
 			ubi.nombre_barrio as "Barrio",
@@ -714,7 +714,7 @@ CREATE VIEW BOGO.v_duracion_promedio_dias_anuncio AS
 	GROUP BY tipo_operacion.nombre, ubi.nombre_barrio, amb.cantidad, tiempo.anio, tiempo.cuatrimestre
 GO
 
--- View 2 ok
+-- Vista 2
 CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 	SELECT  tipo_operacion.nombre as "Tipo operación",
 			tipo_inmueble.nombre as "Tipo inmueble",
@@ -734,7 +734,7 @@ CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 	GROUP BY tipo_operacion.nombre, tipo_inmueble.nombre, rs.descipcion_rango, tiempo.anio, tiempo.cuatrimestre, m.descripcion
 GO
 
--- View 3 ok
+-- Vista 3
 CREATE VIEW BOGO.v_5_barrios_mas_elegidos_rango_etario AS
 	SELECT barrios.anio AS "Año", barrios.cuatrimestre AS "Cuatrimestre", barrios.rango AS "Rango", barrios.descripcion AS "Descripción"
 	FROM (SELECT temp.anio, temp.cuatrimestre, ed.rango, barr.descripcion,
@@ -748,7 +748,7 @@ CREATE VIEW BOGO.v_5_barrios_mas_elegidos_rango_etario AS
 	WHERE Ranking <= 5
 GO 
 
--- View 4 ok
+-- Vista 4
 CREATE VIEW BOGO.v_porcentaje_incumplimiento_de_pagos AS
 	SELECT	t.anio AS "Año", 
 			t.mes AS "Mes", 
@@ -762,7 +762,7 @@ CREATE VIEW BOGO.v_porcentaje_incumplimiento_de_pagos AS
 	GROUP BY t.anio, t.mes
 GO
 
--- vista 5
+-- Vista 5
 CREATE VIEW BOGO.v_promedio_de_incremento_del_valor_de_los_alquileres AS
     SELECT  MONTH(pg.fecha_de_pago) AS "Mes", 
 		   YEAR(pg.fecha_de_pago) AS "Año",
@@ -777,7 +777,7 @@ CREATE VIEW BOGO.v_promedio_de_incremento_del_valor_de_los_alquileres AS
     GROUP BY MONTH(pg.fecha_de_pago), YEAR(pg.fecha_de_pago)
 GO
 
--- View 6 ok
+-- Vista 6
 CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
 	SELECT t.cuatrimestre, t.anio, l.descripcion, ti.nombre, CONCAT('$ ', CAST(AVG(v.precio_m2) AS DECIMAL(12,2))) AS "Precio promedio m2"
 	FROM BOGO.BI_Venta v
@@ -787,7 +787,7 @@ CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
 	GROUP BY t.cuatrimestre, t.anio, l.descripcion, ti.nombre
 GO
 
--- vista 7 ok
+-- Vista 7
 CREATE VIEW BOGO.v_promedio_comision_segun_operacion AS
 	SELECT tip.nombre, s.descripcion, t.anio, t.cuatrimestre, CONCAT('$ ', CAST(AVG(op.comision) AS DECIMAL(12,2))) AS "Promedio comisión"
 	FROM BOGO.BI_operaciones op
@@ -797,9 +797,24 @@ CREATE VIEW BOGO.v_promedio_comision_segun_operacion AS
 	GROUP BY tip.nombre, s.descripcion, t.anio, t.cuatrimestre
 GO
 
--- vista 8 okCREATE VIEW BOGO.v_porcentaje_operaciones_concretadas AS	SELECT  t.anio AS "Año", 			s.descripcion AS Sucursal, 			e.rango, 			CONCAT(COUNT(op.codigo_anuncio) * 100 / 					(SELECT COUNT(a.numero_anuncio) 					 FROM BOGO.Anuncio a 					 INNER JOIN BOGO.Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario					 INNER JOIN BOGO.Sucursal su ON su.codigo_sucursal = ai.sucursal					 WHERE su.codigo_sucursal = s.codigo_sucursal AND						   e.id_Edad = BOGO.OBTENER_RANGO_EDAD(ai.fecha_nacimiento) AND						   YEAR(a.fecha_publicacion) = t.anio), ' %') 			AS "Procentaje operaciones concretadas"	FROM BOGO.BI_operaciones op	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = op.codigo_sucursal	INNER JOIN BOGO.BI_Edad e ON e.id_edad = op.codigo_edad	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = op.codigo_tiempo	GROUP BY t.anio, s.descripcion, e.rango, s.codigo_sucursal, e.id_edadGO
+-- Vista 8CREATE VIEW BOGO.v_porcentaje_operaciones_concretadas
+AS
+    SELECT t.anio AS "Año",
+    s.descripcion AS "Sucursal",
+    e.rango AS "Rango",
+    CONCAT(COUNT(DISTINCT op.codigo_anuncio) * 100/
+    (SELECT COUNT(DISTINCT a.numero_anuncio) FROM Bogo.Anuncio a
+    INNER JOIN Bogo.Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
+    INNER JOIN Bogo.Sucursal su ON su.codigo_sucursal = ai.sucursal
+    WHERE su.codigo_sucursal = s.codigo_sucursal and e.id_edad = Bogo.OBTENER_RANGO_EDAD(ai.fecha_nacimiento) AND YEAR(a.fecha_publicacion) = t.anio),'%') AS "Porcentaje de Operaciones Concretadas"
+    FROM Bogo.BI_operaciones op
+    INNER JOIN Bogo.BI_sucursal s ON s.codigo_sucursal = op.codigo_sucursal
+    INNER JOIN Bogo.BI_Edad e ON e.id_edad = op.codigo_edad
+    INNER JOIN Bogo.BI_Tiempo t ON t.codigo_tiempo = op.codigo_tiempo
+    GROUP BY t.anio,s.codigo_sucursal,s.descripcion,e.id_edad,e.rango
+GO
 
--- vitsa 9 ok
+-- Vista 9
 CREATE VIEW BOGO.v_monto_total_cierre_contratos_por_operacion AS
 	SELECT tip.nombre, s.descripcion AS "Sucursal", t.cuatrimestre, m.descripcion AS "Tipo de moneda", CONCAT('$ ', CAST(SUM(op.monto_total) AS FLOAT)) AS "Monto total"
 	FROM BOGO.BI_operaciones op
@@ -809,4 +824,3 @@ CREATE VIEW BOGO.v_monto_total_cierre_contratos_por_operacion AS
 	INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = op.codigo_moneda
 	GROUP BY tip.nombre, s.descripcion, t.cuatrimestre, m.descripcion
 GO
-
