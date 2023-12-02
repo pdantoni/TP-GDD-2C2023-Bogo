@@ -98,7 +98,8 @@ CREATE TABLE BOGO.BI_Tiempo(
 	codigo_tiempo INT PRIMARY KEY IDENTITY(1,1),
 	anio INT,
 	cuatrimestre INT check(cuatrimestre >= 1 and cuatrimestre <= 3),
-	mes INT
+	mes INT,
+	dia INT
 )
 
 CREATE TABLE BOGO.BI_Moneda(
@@ -120,22 +121,9 @@ CREATE TABLE BOGO.BI_Ambientes(
 
 CREATE TABLE BOGO.BI_Ubicacion(
 	codigo_ubicacion INT PRIMARY KEY IDENTITY(1,1),
-	codigo_provincia INT,
-	codigo_localidad INT,
-	codigo_barrio INT,
 	nombre_provincia VARCHAR(250),
 	nombre_localidad VARCHAR(250),
 	nombre_barrio VARCHAR(250)
-)
-
-CREATE TABLE BOGO.BI_Barrio(
-	cod_barrio INT PRIMARY KEY IDENTITY(1,1),
-	descripcion varchar(250)
-)
-
-CREATE TABLE BOGO.BI_Localidad(
-	cod_localidad INT PRIMARY KEY IDENTITY(1,1),
-	descripcion varchar(250)
 )
 
 CREATE TABLE BOGO.BI_Edad(
@@ -145,45 +133,16 @@ CREATE TABLE BOGO.BI_Edad(
 	rango NVARCHAR(50) NOT NULL
 )
 
-CREATE TABLE BOGO.BI_Fecha_publicacion(
-	codigo INT PRIMARY KEY IDENTITY(1,1),
-	fecha_publicacion DATE
-)
-
-CREATE TABLE BOGO.BI_Fecha_finalizacion(
-	codigo INT PRIMARY KEY IDENTITY(1,1),
-	fecha_finalizacion DATE
-)
-
-CREATE TABLE BOGO.BI_estado_Alquiler(
-	estado_alquiler INT PRIMARY KEY IDENTITY (1,1),
-	nombre NVARCHAR(150) NULL
-)
-
-CREATE TABLE BOGO.BI_estado_inmueble(
-	estado_inmueble INT PRIMARY KEY IDENTITY (1,1),
-	nombre NVARCHAR(150) NULL
-)
-
-CREATE TABLE BOGO.BI_Agente_inmobiliario(
-	codigo_agente INT PRIMARY KEY IDENTITY(1,1),
-	nombre varchar(150),
-	apellido varchar(150),
-	fecha_nacimiento DATETIME,
-	sucursal INT
-)
-
 CREATE TABLE BOGO.BI_sucursal(
     codigo_sucursal INT PRIMARY KEY IDENTITY(1,1),
     descripcion VARCHAR(150)
 )
 
-
 -------------------------------------------------------
 -- TABLAS DE HECHOS
+
 CREATE TABLE BOGO.BI_Anuncios(
-	codigo_anuncio int,
-	codigo_tiempo INT,
+	codigo_anuncio INT PRIMARY KEY IDENTITY(1,1),
 	codigo_fecha_alta int,
 	codigo_fecha_baja int,
 	codigo_tipo_operacion INT,
@@ -192,118 +151,88 @@ CREATE TABLE BOGO.BI_Anuncios(
 	codigo_rango_superficie INT, 
 	codigo_ambientes INT, 
 	codigo_ubicacion INT, 
-	duracion_anuncio DECIMAL(12,2),  
 	precio_anuncio DECIMAL(12,2),
-	inmueble INT,
-	PRIMARY KEY (codigo_anuncio, codigo_fecha_alta, codigo_fecha_baja,  codigo_tiempo, codigo_tipo_operacion, codigo_tipo_inmueble, codigo_moneda, codigo_rango_superficie, codigo_ambientes, codigo_ubicacion)
+	cant_anuncios_segmentados INT,
 )
 
 CREATE TABLE BOGO.BI_Alquiler(
-	codigo_alquiler INT,
+	codigo_alquiler INT PRIMARY KEY IDENTITY(1,1),
 	codigo_tiempo INT, 
-	codigo_edad INT,  
-	codigo_barrio INT,
-	fecha_de_inicio DATE,
-	estado_alquiler INT,
-	PRIMARY KEY(codigo_alquiler, codigo_tiempo, codigo_edad, codigo_barrio)
+	codigo_tipo_inmueble INT, 
+	codigo_rangom2 INT,
+	codigo_ubicacion INT,
+	codigo_edad_inquilino INT,
+	codigo_edad_agente INT,
+	codigo_sucursal INT, 
+	codigo_ambiente INT, 
+	codigo_moneda INT, 
+	comision INT, 
+	deposito INT, 
+	cant_alquileres_segregados INT
 )
 
 CREATE TABLE BOGO.BI_Venta(
-    codigo_venta INT,
-	codigo_tiempo INT,
-	codigo_localidad INT,
-	codigo_estado_inmueble INT,
+    codigo_venta INT PRIMARY KEY IDENTITY(1,1),
+	tiempo INT,
+	tipo_inmueble INT, 
+	rangom2 INT, 
+	ubicacion INT, 
+	edad INT, 
+	sucursal INT, 
+	ambientes INT, 
+	tipo_moneda INT, 
+	comision INT, 
 	precio_venta INT, 
-	superficie_inmueble INT,
-	precio_m2 DECIMAL(12,2),
-	PRIMARY KEY (codigo_venta, codigo_tiempo, codigo_localidad, codigo_estado_inmueble)
+	cant_ventas_segregadas INT
 )
 
 CREATE TABLE BOGO.BI_pago_alquiler(
-	codigo_pago_alquiler INT, 
-	alquiler INT,
-	codigo_tiempo INT,
-	codigo_estado_alquiler INT,
-    fecha_de_pago DATE,
-	fecha_de_vencimiento DATE,
-    importe FLOAT,
-	pago_a_tiempo BIT,
-	PRIMARY KEY (codigo_pago_alquiler, alquiler, codigo_tiempo, codigo_estado_alquiler)
+	codigo_pago_alquiler INT PRIMARY KEY IDENTITY(1,1), 
+    fecha_de_pago int,
+	fecha_de_vencimiento int,
+    aumento FLOAT,
+	cant_pagos_Segregados INT
 )
-
-CREATE TABLE BOGO.BI_operaciones(
-	codigo_operacion INT IDENTITY (1,1),
-	codigo_tipo_operacion INT,
-	codigo_sucursal INT,
-	codigo_empleado INT, 
-	codigo_edad INT,
-	codigo_anuncio INT, 
-	codigo_moneda INT, 
-	codigo_tiempo INT,
-	comision FLOAT,
-	monto_total FLOAT,
-	PRIMARY KEY (codigo_operacion, codigo_empleado, codigo_edad, codigo_anuncio, codigo_moneda, codigo_tiempo, codigo_sucursal, codigo_tipo_operacion)
-)
-
 
 -------------------------------------------------------
 -- CREACION DE PKs COMPUESTAS
 ALTER TABLE BOGO.BI_Alquiler
 	ADD FOREIGN KEY (codigo_tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
-		FOREIGN KEY (codigo_edad) REFERENCES BOGO.BI_Edad(id_Edad),
-		FOREIGN KEY (codigo_barrio) REFERENCES BOGO.BI_barrio(cod_barrio)
-		--FOREIGN KEY (fecha_de_inicio) REFERENCES BOGO.alquiler(fecha_inicio)
+		FOREIGN KEY (codigo_tipo_inmueble) REFERENCES BOGO.BI_Tipo_Inmueble(codigo_tipo_inmueble),
+		FOREIGN KEY (codigo_rangom2) REFERENCES BOGO.BI_rangos_superficie(codigo_m2),
+		FOREIGN KEY (codigo_ubicacion) REFERENCES BOGO.BI_Ubicacion(codigo_ubicacion),
+		FOREIGN KEY (codigo_edad_inquilino) REFERENCES BOGO.BI_Edad(id_Edad),
+		FOREIGN KEY (codigo_edad_agente) REFERENCES BOGO.BI_Edad(id_Edad),
+		FOREIGN KEY (codigo_sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal),
+		FOREIGN KEY (codigo_ambiente) REFERENCES BOGO.BI_Ambientes(codigo_ambientes),
+		FOREIGN KEY (codigo_moneda) REFERENCES BOGO.BI_Moneda(codigo_moneda)
 GO
 
-ALTER TABLE BOGO.BI_Ubicacion
-	ADD	FOREIGN KEY (codigo_provincia) REFERENCES BOGO.provincia(codigo_provincia), 
-		FOREIGN KEY (codigo_localidad) REFERENCES BOGO.localidad(codigo_localidad),
-		FOREIGN KEY (codigo_barrio) REFERENCES BOGO.barrio(codigo_barrio)
-GO 
-
 ALTER TABLE BOGO.BI_Anuncios
-	ADD FOREIGN KEY (codigo_tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
-		FOREIGN KEY (codigo_tipo_operacion) REFERENCES BOGO.BI_Tipo_operacion(codigo_tipo_operacion), -- VER ESTO
+	ADD FOREIGN KEY (codigo_tipo_operacion) REFERENCES BOGO.BI_Tipo_operacion(codigo_tipo_operacion), 
 		FOREIGN KEY (codigo_tipo_inmueble) REFERENCES BOGO.BI_Tipo_Inmueble(codigo_tipo_inmueble),
 		FOREIGN KEY (codigo_moneda) REFERENCES BOGO.BI_Moneda(codigo_moneda),
 		FOREIGN KEY (codigo_rango_superficie) REFERENCES BOGO.BI_rangos_superficie(codigo_m2),
 		FOREIGN KEY (codigo_ambientes) REFERENCES BOGO.BI_Ambientes(codigo_ambientes),
 		FOREIGN KEY (codigo_ubicacion) REFERENCES BOGO.BI_Ubicacion(codigo_ubicacion),
-		FOREIGN KEY (codigo_fecha_alta) REFERENCES BOGO.BI_Fecha_publicacion(codigo),
-		FOREIGN KEY (codigo_fecha_baja) REFERENCES BOGO.BI_Fecha_finalizacion(codigo),
-		FOREIGN KEY (inmueble) REFERENCES BOGO.inmueble(numero_de_inmueble)
+		FOREIGN KEY (codigo_fecha_alta) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
+		FOREIGN KEY (codigo_fecha_baja) REFERENCES BOGO.BI_Tiempo(codigo_tiempo)
 GO
 
 ALTER TABLE BOGO.BI_pago_alquiler
-	ADD FOREIGN KEY (codigo_pago_alquiler) REFERENCES BOGO.Pago_alquiler(codigo_pago_alquiler),
-		FOREIGN KEY (alquiler) REFERENCES BOGO.Alquiler(codigo_alquiler),
-		FOREIGN KEY (codigo_tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
-		FOREIGN KEY (codigo_estado_alquiler) REFERENCES BOGO.BI_Estado_Alquiler(estado_alquiler)
+	ADD FOREIGN KEY (fecha_de_pago) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
+		FOREIGN KEY (fecha_de_vencimiento) REFERENCES BOGO.BI_Tiempo(codigo_tiempo)
 GO
 
 ALTER TABLE BOGO.BI_venta
-	ADD FOREIGN KEY (codigo_venta) REFERENCES BOGO.venta(codigo_venta),	
-		FOREIGN KEY (codigo_tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),	
-		FOREIGN KEY (codigo_localidad) REFERENCES BOGO.BI_localidad(cod_localidad),
-		FOREIGN KEY (codigo_estado_inmueble) REFERENCES BOGO.BI_Estado_inmueble(estado_inmueble)
-GO
-
-ALTER TABLE BOGO.BI_operaciones
-	ADD FOREIGN KEY (codigo_empleado) REFERENCES BOGO.BI_Agente_inmobiliario(codigo_agente),	
-		FOREIGN KEY (codigo_edad) REFERENCES BOGO.BI_edad(id_edad),
-		FOREIGN KEY (codigo_anuncio) REFERENCES BOGO.Anuncio(numero_anuncio),
-		FOREIGN KEY (codigo_moneda) REFERENCES BOGO.BI_Moneda(codigo_moneda),
-		FOREIGN KEY (codigo_tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),
-		FOREIGN KEY (codigo_sucursal) REFERENCES BOGO.BI_Sucursal(codigo_sucursal),
-		FOREIGN KEY (codigo_tipo_operacion) REFERENCES BOGO.BI_Tipo_operacion(codigo_tipo_operacion)
-GO
-
-ALTER TABLE BOGO.BI_agente_inmobiliario
-	ADD FOREIGN KEY (sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal)
-GO
-
-ALTER TABLE BOGO.BI_sucursal
-	ADD FOREIGN KEY (codigo_sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal)
+	ADD FOREIGN KEY (tiempo) REFERENCES BOGO.BI_Tiempo(codigo_tiempo),	
+		FOREIGN KEY (tipo_inmueble) REFERENCES BOGO.BI_Tipo_inmueble(codigo_tipo_inmueble) ,
+		FOREIGN KEY (rangom2) REFERENCES BOGO.BI_rangos_superficie(codigo_m2),
+		FOREIGN KEY (ubicacion) REFERENCES BOGO.BI_Ubicacion(codigo_ubicacion),
+		FOREIGN KEY (edad) REFERENCES BOGO.BI_Edad(id_edad),
+		FOREIGN KEY (sucursal) REFERENCES BOGO.BI_sucursal(codigo_sucursal),
+		FOREIGN KEY (ambientes) REFERENCES BOGO.BI_Ambientes(codigo_ambientes),
+		FOREIGN KEY (tipo_moneda) REFERENCES BOGO.BI_Moneda(codigo_moneda)
 GO
 
 
@@ -370,7 +299,7 @@ BEGIN
 	RETURN @monto;
 END
 GO
--- ver
+
 CREATE FUNCTION BOGO.OBTENER_ID_TIEMPO(@fecha DATE) RETURNS INT AS
 BEGIN
 	DECLARE @anio DECIMAL(4),
@@ -393,19 +322,30 @@ GO
 --  CREACION DE PROCEDURES 
 CREATE PROCEDURE BOGO.BI_migrar_tiempo AS
 BEGIN
-    INSERT INTO BOGO.BI_tiempo (anio, cuatrimestre, mes) 
-        SELECT DISTINCT YEAR(AN.fecha_publicacion) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(AN.fecha_publicacion)) as "Cuatrimestre", MONTH(AN.fecha_publicacion) as "Mes" FROM BOGO.Anuncio AN
+    INSERT INTO BOGO.BI_tiempo (anio, cuatrimestre, mes, dia)
+		SELECT DISTINCT YEAR(A.fecha_de_inicio) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(A.fecha_de_inicio)) as "Cuatrimestre", MONTH(A.fecha_de_inicio) as "Mes", DAY(A.fecha_de_inicio) as "Día" FROM BOGO.Alquiler A
 	UNION
-		SELECT DISTINCT YEAR(AN.fecha_finalizacion) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(AN.fecha_finalizacion)) as "Cuatrimestre", MONTH(AN.fecha_finalizacion) as "Mes" FROM BOGO.Anuncio AN
-	UNION 
-		SELECT DISTINCT YEAR(A.fecha_de_inicio) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(A.fecha_de_inicio)) as "Cuatrimestre", MONTH(A.fecha_de_inicio) as "Mes" FROM BOGO.Alquiler A
+		SELECT DISTINCT YEAR(A.fecha_de_fin) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(A.fecha_de_fin)) as "Cuatrimestre", MONTH(A.fecha_de_fin) as "Mes", DAY(A.fecha_de_fin) as "Día" FROM BOGO.Alquiler A
 	UNION
-		SELECT DISTINCT YEAR(pg.fecha_de_pago) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(pg.fecha_de_pago)) as "Cuatrimestre", MONTH(pg.fecha_de_pago) as "Mes" FROM BOGO.Pago_alquiler pg
+		SELECT DISTINCT YEAR(AN.fecha_publicacion) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(AN.fecha_publicacion)) as "Cuatrimestre", MONTH(AN.fecha_publicacion) as "Mes", DAY(AN.fecha_publicacion) as "Día" FROM BOGO.Anuncio AN
 	UNION
-		SELECT DISTINCT YEAR(pg.fecha_de_vencimiento) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(pg.fecha_de_vencimiento)) as "Cuatrimestre", MONTH(pg.fecha_de_vencimiento) as "Mes" FROM BOGO.Pago_alquiler pg
+		SELECT DISTINCT YEAR(AN.fecha_finalizacion) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(AN.fecha_finalizacion)) as "Cuatrimestre", MONTH(AN.fecha_finalizacion) as "Mes", DAY(AN.fecha_finalizacion) as "Día" FROM BOGO.Anuncio AN
 	UNION
-		SELECT DISTINCT YEAR(v.fecha_de_venta) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) as "Cuatrimestre", MONTH(v.fecha_de_venta) as "Mes" FROM BOGO.venta v
-	ORDER BY anio ASC, cuatrimestre ASC, mes ASC
+		SELECT DISTINCT YEAR(v.fecha_de_venta) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) as "Cuatrimestre", MONTH(v.fecha_de_venta) as "Mes", DAY(v.fecha_de_venta) as "Día" FROM BOGO.venta v
+	UNION	
+		SELECT DISTINCT YEAR(pg.fecha_de_pago) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(pg.fecha_de_pago)) as "Cuatrimestre", MONTH(pg.fecha_de_pago) as "Mes", DAY(pg.fecha_de_pago) as "Día" FROM BOGO.Pago_alquiler pg
+	UNION
+		SELECT DISTINCT YEAR(pg.fecha_de_vencimiento) as "Anio", BOGO.OBTENER_CUATRIMESTRE(MONTH(pg.fecha_de_vencimiento)) as "Cuatrimestre", MONTH(pg.fecha_de_vencimiento) as "Mes", DAY(pg.fecha_de_vencimiento) as "Día" FROM BOGO.Pago_alquiler pg
+	ORDER BY anio ASC, cuatrimestre ASC, mes ASC, "Día" ASC
+END
+GO
+
+CREATE PROCEDURE BOGO.BI_migrar_Edad AS 
+BEGIN
+	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (0, 25, '<25')
+	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (25, 35, '25-35')
+	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (35, 50, '35-50')
+	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (50, null, '>50')
 END
 GO
 
@@ -423,7 +363,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE BOGO.BI_migrar_moneda AS
+CREATE PROCEDURE BOGO.BI_migrar_moneda AS 
 BEGIN
     INSERT INTO BOGO.BI_moneda (descripcion)
         SELECT descripcion FROM BOGO.moneda
@@ -450,108 +390,38 @@ GO
 
 CREATE PROCEDURE BOGO.BI_migrar_ubicacion AS
 BEGIN
-    INSERT INTO BOGO.BI_ubicacion (codigo_provincia, codigo_localidad, codigo_barrio, nombre_provincia, nombre_localidad, nombre_barrio)
-        SELECT DISTINCT p.codigo_provincia, l.codigo_localidad, b.codigo_barrio, p.nombre, l.nombre, b.nombre FROM BOGO.Provincia p
+    INSERT INTO BOGO.BI_ubicacion (nombre_provincia, nombre_localidad, nombre_barrio)
+        SELECT DISTINCT p.nombre, l.nombre, b.nombre FROM BOGO.Provincia p
 			INNER JOIN BOGO.localidad l on p.codigo_provincia = l.provincia
 			INNER JOIN BOGO.barrio b on l.codigo_localidad = b.localidad
-		ORDER BY p.codigo_provincia, l.codigo_localidad, b.codigo_barrio ASC
 END
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_fecha_publicacion AS 
-BEGIN 
-	INSERT INTO BOGO.BI_Fecha_publicacion(fecha_publicacion) SELECT DISTINCT Cast(a.fecha_publicacion as date) AS "Anio" FROM Bogo.Anuncio a ORDER BY anio
-END
-GO 
-
-CREATE PROCEDURE BOGO.BI_migrar_fecha_finalizacion AS 
-BEGIN 
-	INSERT INTO BOGO.BI_Fecha_finalizacion(fecha_finalizacion) SELECT DISTINCT Cast(a.fecha_finalizacion as date) AS "Anio" FROM Bogo.Anuncio a ORDER BY anio
-END
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_barrios AS 
-BEGIN 
-	SET IDENTITY_INSERT Bogo.BI_Barrio ON
-	INSERT INTO BOGO.BI_Barrio(cod_barrio,descripcion) SELECT barr.codigo_barrio, barr.nombre FROM BOGO.Barrio barr
-	SET IDENTITY_INSERT Bogo.BI_Barrio OFF
-END
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_localidad AS 
-BEGIN 
-	SET IDENTITY_INSERT Bogo.BI_Localidad ON
-	INSERT INTO BOGO.BI_localidad(cod_localidad,descripcion) SELECT l.codigo_localidad, l.nombre FROM BOGO.localidad l
-	SET IDENTITY_INSERT Bogo.BI_localidad OFF
-END
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_Edad AS
-BEGIN
-	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (0, 25, '<25')
-	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (25, 35, '25-35')
-	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (35, 50, '35-50')
-	INSERT INTO BOGO.BI_Edad(edad_inferior, edad_superior, rango) VALUES (50, null, '>50')
-END
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_estado_alquiler AS 
-BEGIN 
-	INSERT INTO BOGO.BI_estado_alquiler (nombre)
-	SELECT ea.descripcion
-	FROM BOGO.estado_alquiler ea
-END 
-GO
-
-CREATE PROCEDURE BOGO.BI_migrar_estado_inmueble AS 
-BEGIN 
-	SET IDENTITY_INSERT BOGO.BI_Estado_inmueble ON
-	INSERT INTO BOGO.BI_estado_inmueble (estado_inmueble, nombre)
-	SELECT ei.codigo_estado, ei.descripcion
-	FROM BOGO.estado ei
-	SET IDENTITY_INSERT BOGO.BI_Estado_inmueble OFF
-END 
 GO
 
 CREATE PROCEDURE Bogo.BI_migrar_sucursal AS
 BEGIN
-	SET IDENTITY_INSERT Bogo.BI_sucursal ON 
-	INSERT INTO Bogo.BI_sucursal(codigo_sucursal,descripcion) 
-	SELECT s.codigo_sucursal, s.nombre FROM Bogo.Sucursal s
-	SET IDENTITY_INSERT Bogo.BI_sucursal OFF
+	INSERT INTO Bogo.BI_sucursal(descripcion) 
+	SELECT s.nombre FROM Bogo.Sucursal s
 END
 GO
 
-CREATE PROCEDURE BOGO.BI_migrar_Agente_inmobiliario AS
-BEGIN
-	SET IDENTITY_INSERT Bogo.BI_Agente_inmobiliario ON 
-	INSERT INTO Bogo.BI_Agente_inmobiliario(codigo_agente, nombre, apellido, fecha_nacimiento, sucursal) 
-	SELECT ai.codigo_agente, ai.nombre, ai.apellido, ai.fecha_nacimiento, ai.sucursal FROM Bogo.Agente_inmobiliario ai
-	SET IDENTITY_INSERT Bogo.BI_Agente_inmobiliario OFF
-END
-GO
 
 -------------------------------------------------------
 -- PROCEDURES PARA TABLAS DE HECHOS
+-- Tabla hechos anuncio ok
 CREATE PROCEDURE BOGO.BI_migrar_anuncios AS
 BEGIN
-	INSERT INTO BOGO.BI_Anuncios(codigo_anuncio, codigo_tiempo, codigo_fecha_alta, codigo_fecha_baja, codigo_tipo_inmueble, codigo_moneda, codigo_ambientes, codigo_tipo_operacion, codigo_rango_superficie, duracion_anuncio, codigo_ubicacion, precio_anuncio) 
-	SELECT  a.numero_anuncio,
-			ti.codigo_tiempo,
-			fecha_p.codigo,
-			fecha_f.codigo,
-			tipo_inmueble.codigo_tipo_inmueble,
-			mon.codigo_moneda,
-			amb.codigo_ambientes,
-			tipo_operacion.codigo_tipo_operacion,
-			ra_super.codigo_m2,
-			DATEDIFF(DAY,a.fecha_publicacion,a.fecha_finalizacion),
-			ubi.codigo_ubicacion,
-			a.precio_inmueble
+	INSERT INTO BOGO.BI_Anuncios(codigo_fecha_alta, codigo_fecha_baja, codigo_tipo_inmueble, codigo_moneda, codigo_ambientes, codigo_tipo_operacion, codigo_rango_superficie, codigo_ubicacion, precio_anuncio, cant_anuncios_segmentados) 
+	SELECT  (SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(a.fecha_publicacion) AND t.mes = MONTH(a.fecha_publicacion) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_publicacion)) AND t.dia = DAY(a.fecha_publicacion)), 
+			(SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(a.fecha_finalizacion) AND t.mes = MONTH(a.fecha_finalizacion) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_finalizacion)) AND t.dia = DAY(a.fecha_finalizacion)),
+			(SELECT ti2.codigo_tipo_inmueble FROM BOGO.BI_Tipo_Inmueble ti2 WHERE ti2.nombre = tipo_inmueble.nombre),
+			(SELECT m.codigo_moneda FROM BOGO.BI_Moneda m WHERE m.descripcion = mon.descripcion),
+			(SELECT am.codigo_ambientes FROM BOGO.BI_Ambientes am WHERE am.cantidad = amb.cantidad),
+			(SELECT tipoop.codigo_tipo_operacion FROM BOGO.BI_Tipo_Operacion tipoop WHERE tipoop.nombre = tipo_operacion.nombre),
+			(SELECT rs.codigo_m2 FROM BOGO.BI_rangos_superficie rs WHERE rs.codigo_m2 = BOGO.OBTENER_ID_RANGO(inm.superficie)),
+			(SELECT u.codigo_ubicacion FROM BOGO.BI_Ubicacion u WHERE u.nombre_provincia = prov.nombre AND u.nombre_localidad = loc.nombre AND u.nombre_barrio = barr.nombre),
+			SUM(a.precio_inmueble), 
+			COUNT(*)
 	FROM Bogo.Anuncio a
-		INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(a.fecha_publicacion) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_publicacion)) and ti.mes = MONTH(a.fecha_publicacion)
-		INNER JOIN BOGO.BI_Fecha_publicacion fecha_p on fecha_p.fecha_publicacion = Cast(a.fecha_publicacion as Date)
-		INNER JOIN BOGO.BI_Fecha_finalizacion fecha_f on fecha_f.fecha_finalizacion = Cast(a.fecha_finalizacion as DATE)
 		INNER JOIN BOGO.BI_Moneda mon on a.moneda = mon.codigo_moneda
 		INNER JOIN BOGO.Inmueble inm on a.inmueble = inm.numero_de_inmueble
 		INNER JOIN BOGO.BI_Tipo_Inmueble tipo_inmueble on tipo_inmueble.codigo_tipo_inmueble = inm.tipo_inmueble
@@ -562,86 +432,96 @@ BEGIN
 		INNER JOIN BOGO.BI_Tipo_operacion tipo_operacion on tipo_operacion.codigo_tipo_operacion = a.tipo_operacion
 		INNER JOIN BOGO.BI_rangos_superficie ra_super on ra_super.codigo_m2 = Bogo.Obtener_ID_Rango(inm.superficie)
 		INNER JOIN BOGO.BI_Ambientes amb on amb.cantidad = inm.ambientes
+	GROUP BY a.fecha_publicacion, a.fecha_finalizacion, tipo_inmueble.nombre, BOGO.OBTENER_ID_RANGO(inm.superficie), mon.descripcion, barr.nombre, loc.nombre, prov.nombre, tipo_operacion.nombre, amb.cantidad
 END
 GO
 
 CREATE PROCEDURE BOGO.BI_migrar_alquiler AS
 BEGIN
-	INSERT INTO BOGO.BI_Alquiler(codigo_alquiler, codigo_tiempo, codigo_edad, codigo_barrio, fecha_de_inicio, estado_alquiler)
-	SELECT a.codigo_alquiler, ti.codigo_tiempo, e.id_edad, b.cod_barrio, CAST(a.fecha_de_inicio AS date), a.estado_alquiler
+	INSERT INTO BOGO.BI_Alquiler(codigo_tiempo, codigo_tipo_inmueble, codigo_rangom2, codigo_ubicacion, codigo_edad_inquilino, codigo_edad_agente, codigo_sucursal, codigo_ambiente, codigo_moneda, comision, deposito, cant_alquileres_segregados)
+	SELECT	(SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(a.fecha_de_fin) AND t.mes = MONTH(a.fecha_de_fin) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_de_fin)) AND t.dia = DAY(a.fecha_de_fin)),
+			(SELECT ti.codigo_tipo_inmueble FROM BOGO.BI_Tipo_Inmueble ti WHERE ti.nombre = tipo_inmueble.nombre),
+			(SELECT rs.codigo_m2 FROM BOGO.BI_rangos_superficie rs WHERE rs.codigo_m2 = BOGO.OBTENER_ID_RANGO(inm.superficie)),
+			(SELECT u.codigo_ubicacion FROM BOGO.BI_Ubicacion u WHERE u.nombre_provincia = prov.nombre AND u.nombre_localidad = loc.nombre AND u.nombre_barrio = barr.nombre),
+			(SELECT rei.id_edad FROM BOGO.BI_Edad rei WHERE rei.id_edad = BOGO.OBTENER_RANGO_EDAD(i.fecha_nacimiento)),
+			(SELECT rea.id_edad FROM BOGO.BI_Edad rea WHERE rea.id_edad = BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento)),
+			(SELECT su.codigo_sucursal FROM BOGO.BI_Sucursal su WHERE su.descripcion = s.descripcion),
+			(SELECT am.codigo_ambientes FROM BOGO.BI_Ambientes am WHERE am.cantidad = amb.cantidad),
+			(SELECT m.codigo_moneda FROM BOGO.BI_Moneda m WHERE m.descripcion = mon.descripcion),
+			SUM(a.comision),
+			SUM(a.deposito),
+			COUNT(*)
 	FROM BOGO.Alquiler a
-	INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(a.fecha_de_inicio) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_de_inicio)) and ti.mes = MONTH(a.fecha_de_inicio)
-	INNER JOIN BOGO.Inquilino i ON i.codigo_inquilino = a.inquilino
-	INNER JOIN BOGO.BI_Edad e ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(i.fecha_nacimiento)
+	INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(a.fecha_de_inicio) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(a.fecha_de_inicio)) and ti.mes = MONTH(a.fecha_de_inicio) AND ti.dia = DAY(a.fecha_de_inicio)
 	INNER JOIN BOGO.Anuncio an ON an.numero_anuncio = a.anuncio
 	INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = an.inmueble
-	INNER JOIN BOGO.BI_Barrio b ON b.cod_barrio = inm.barrio
-	INNER JOIN BOGO.BI_estado_Alquiler ea ON ea.estado_alquiler = a.estado_alquiler
+	INNER JOIN BOGO.BI_Tipo_Inmueble tipo_inmueble on tipo_inmueble.codigo_tipo_inmueble = inm.tipo_inmueble
+	INNER JOIN BOGO.BI_rangos_superficie ra_super on ra_super.codigo_m2 = Bogo.Obtener_ID_Rango(inm.superficie)
+	INNER JOIN BOGO.Provincia prov on prov.codigo_provincia = inm.provincia
+	INNER JOIN BOGO.Localidad loc on loc.codigo_localidad = inm.localidad
+	INNER JOIN BOGO.Barrio barr on barr.codigo_barrio = inm.barrio
+	INNER JOIN BOGO.BI_Ubicacion ubi on ubi.nombre_provincia = prov.nombre and ubi.nombre_localidad = loc.nombre and ubi.nombre_barrio = barr.nombre
+	INNER JOIN BOGO.Inquilino i ON i.codigo_inquilino = a.inquilino
+	INNER JOIN BOGO.BI_Edad e ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(i.fecha_nacimiento)
+	INNER JOIN BOGO.Agente_inmobiliario ag on ag.codigo_agente = an.agente_inmobiliario
+	INNER JOIN BOGO.BI_Edad e2 ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento)
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ag.sucursal
+	INNER JOIN BOGO.BI_Ambientes amb on amb.cantidad = inm.ambientes
+	INNER JOIN BOGO.BI_Moneda mon on an.moneda = mon.codigo_moneda
+	GROUP BY a.fecha_de_fin, tipo_inmueble.nombre, BOGO.OBTENER_ID_RANGO(inm.superficie), barr.nombre, loc.nombre, prov.nombre, BOGO.OBTENER_RANGO_EDAD(i.fecha_nacimiento), BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento), s.descripcion, amb.cantidad, mon.descripcion
 END	
 GO
 
 CREATE PROCEDURE BOGO.BI_migrar_pago_alquiler AS
 BEGIN
-	INSERT INTO BOGO.BI_pago_alquiler (codigo_pago_alquiler, alquiler, fecha_de_pago, importe, fecha_de_vencimiento, pago_a_tiempo, codigo_tiempo, codigo_estado_alquiler)
-	SELECT 
-		pg.codigo_pago_alquiler, 
-		a.codigo_alquiler, 
-		CAST(pg.fecha_de_pago AS DATE) as "Fecha de pago", 
-		pg.importe as "Importe", 
-		CAST(pg.fecha_de_vencimiento AS DATE) AS "Fecha de vencimiento",
-		CASE WHEN pg.fecha_de_pago <= pg.fecha_de_vencimiento THEN 1 ELSE 0 END AS "Pago a tiempo",
-		ti.codigo_tiempo,
-		ea.estado_alquiler 
-	FROM BOGO.pago_alquiler pg
-	INNER JOIN BOGO.Alquiler a ON a.codigo_alquiler = pg.alquiler
-	INNER JOIN BOGO.BI_estado_Alquiler ea ON ea.estado_alquiler = a.estado_alquiler
-	INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(pg.fecha_de_pago) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(pg.fecha_de_pago)) and ti.mes = MONTH(pg.fecha_de_pago)
+	INSERT INTO BOGO.BI_pago_alquiler (fecha_de_pago, fecha_de_vencimiento, aumento, cant_pagos_Segregados)
+	SELECT	(SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(pa.fecha_de_pago) AND t.mes = MONTH(pa.fecha_de_pago) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(pa.fecha_de_pago)) AND t.dia = DAY(pa.fecha_de_pago)),
+			(SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(pa.fecha_de_vencimiento) AND t.mes = MONTH(pa.fecha_de_vencimiento) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(pa.fecha_de_vencimiento)) AND t.dia = DAY(pa.fecha_de_vencimiento)),
+			ISNULL((SELECT SUM(pa1.importe-pa2.importe)
+					FROM BOGO.PAGO_ALQUILER pa1 INNER JOIN BOGO.PAGO_ALQUILER pa2 
+					ON pa2.alquiler = pa1.alquiler 
+					AND pa2.importe < pa1.importe 
+					AND DATEDIFF(MONTH,pa2.fecha_de_pago,pa1.fecha_de_pago) = 1 WHERE pa1.fecha_de_pago = pa.fecha_de_pago 
+					AND pa1.fecha_de_vencimiento = pa.fecha_de_vencimiento),0),
+        COUNT(*)           
+        FROM BOGO.PAGO_ALQUILER pa
+    GROUP BY pa.fecha_de_pago, pa.fecha_de_vencimiento
 END
 GO
 
 CREATE PROCEDURE BOGO.BI_migrar_venta AS
 BEGIN
-	INSERT INTO BOGO.BI_venta (codigo_venta, codigo_tiempo, codigo_localidad, codigo_estado_inmueble, precio_venta, superficie_inmueble, precio_m2)
-	SELECT	v.codigo_venta, 
-			ti.codigo_tiempo, 
-			l.cod_localidad, 
-			ea.estado_inmueble, 
-			v.precio_venta, 
-			inm.superficie, 
-			CAST((v.precio_venta / inm.superficie) AS DECIMAL(12,2)) AS "Precio por m2"
+	INSERT INTO BOGO.BI_venta (tiempo, tipo_inmueble, rangom2, ubicacion, edad, sucursal, ambientes, tipo_moneda, comision, precio_venta, cant_ventas_segregadas)
+	SELECT	(SELECT t.codigo_tiempo FROM BOGO.BI_Tiempo t WHERE t.anio = YEAR(v.fecha_de_venta) AND t.mes = MONTH(v.fecha_de_venta) AND t.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) AND t.dia = DAY(v.fecha_de_venta)),
+			(SELECT ti.codigo_tipo_inmueble FROM BOGO.BI_Tipo_Inmueble ti WHERE ti.nombre = tipo_inmueble.nombre),
+			(SELECT rs.codigo_m2 FROM BOGO.BI_rangos_superficie rs WHERE rs.codigo_m2 = BOGO.OBTENER_ID_RANGO(inm.superficie)),
+			(SELECT u.codigo_ubicacion FROM BOGO.BI_Ubicacion u WHERE u.nombre_provincia = prov.nombre AND u.nombre_localidad = loc.nombre AND u.nombre_barrio = barr.nombre),
+			(SELECT rea.id_edad FROM BOGO.BI_Edad rea WHERE rea.id_edad = BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento)),
+			(SELECT su.codigo_sucursal FROM BOGO.BI_Sucursal su WHERE su.descripcion = s.descripcion),
+			(SELECT am.codigo_ambientes FROM BOGO.BI_Ambientes am WHERE am.cantidad = amb.cantidad),
+			(SELECT m.codigo_moneda FROM BOGO.BI_Moneda m WHERE m.descripcion = mon.descripcion),
+			SUM(v.comision_inmobiliaria),
+			SUM(v.precio_venta),
+			COUNT(*)
 	FROM BOGO.venta v
-	LEFT JOIN BOGO.Anuncio an ON an.numero_anuncio = v.anuncio
-	LEFT JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(v.fecha_de_venta) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) and ti.mes = MONTH(v.fecha_de_venta)
-	LEFT JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = an.inmueble
-	LEFT JOIN BOGO.BI_Localidad l ON l.cod_localidad = inm.localidad
-	LEFT JOIN BOGO.BI_estado_inmueble ea ON ea.estado_inmueble = inm.estado
+	INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(v.fecha_de_venta) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) and ti.mes = MONTH(v.fecha_de_venta) AND ti.dia = DAY(v.fecha_de_venta)
+	INNER JOIN BOGO.Anuncio an ON an.numero_anuncio = v.anuncio
+	INNER JOIN BOGO.Inmueble inm ON inm.numero_de_inmueble = an.inmueble
+	INNER JOIN BOGO.BI_Tipo_Inmueble tipo_inmueble on tipo_inmueble.codigo_tipo_inmueble = inm.tipo_inmueble
+	INNER JOIN BOGO.BI_rangos_superficie ra_super on ra_super.codigo_m2 = Bogo.Obtener_ID_Rango(inm.superficie)
+	INNER JOIN BOGO.Provincia prov on prov.codigo_provincia = inm.provincia
+	INNER JOIN BOGO.Localidad loc on loc.codigo_localidad = inm.localidad
+	INNER JOIN BOGO.Barrio barr on barr.codigo_barrio = inm.barrio
+	INNER JOIN BOGO.BI_Ubicacion ubi on ubi.nombre_provincia = prov.nombre and ubi.nombre_localidad = loc.nombre and ubi.nombre_barrio = barr.nombre
+	INNER JOIN BOGO.Agente_inmobiliario ag on ag.codigo_agente = an.agente_inmobiliario
+	INNER JOIN BOGO.BI_Edad e ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento)
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ag.sucursal
+	INNER JOIN BOGO.BI_Ambientes amb on amb.cantidad = inm.ambientes
+	INNER JOIN BOGO.BI_Moneda mon on an.moneda = mon.codigo_moneda
+	GROUP BY v.fecha_de_venta, tipo_inmueble.nombre, BOGO.OBTENER_ID_RANGO(inm.superficie), barr.nombre, loc.nombre, prov.nombre, BOGO.OBTENER_RANGO_EDAD(ag.fecha_nacimiento), s.descripcion, amb.cantidad, mon.descripcion
 END			
 GO		
 
-CREATE PROCEDURE BOGO.BI_migrar_operaciones AS
-BEGIN
-	INSERT INTO BOGO.BI_operaciones (codigo_empleado, codigo_edad, codigo_anuncio, codigo_moneda, codigo_tiempo, codigo_sucursal, codigo_tipo_operacion, comision, monto_total)
-	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, ISNULL(s.codigo_sucursal, 0), tip.codigo_tipo_operacion, v.comision_inmobiliaria, v.precio_venta
-	FROM BOGO.Venta v
-	LEFT JOIN BOGO.anuncio a ON a.numero_anuncio = v.anuncio
-	LEFT JOIN BOGO.BI_Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
-	LEFT JOIN BOGO.BI_Edad e ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(ai.fecha_nacimiento)
-	LEFT JOIN BOGO.BI_moneda m ON m.codigo_moneda = a.moneda
-	LEFT JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(v.fecha_de_venta) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) and ti.mes = MONTH(v.fecha_de_venta)
-	LEFT JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ai.sucursal
-	LEFT JOIN BOGO.BI_Tipo_operacion tip ON tip.codigo_tipo_operacion = a.tipo_operacion
-	UNION
-	SELECT ai.codigo_agente, e.id_edad, a.numero_anuncio, m.codigo_moneda, ti.codigo_tiempo, ISNULL(s.codigo_sucursal, 0), tip.codigo_tipo_operacion, al.comision, ISNULL(BOGO.OBTENER_TOTAL_ALQUILER(codigo_alquiler), al.deposito) AS "Precio alquiler"
-	FROM BOGO.Alquiler al
-	LEFT JOIN BOGO.anuncio a ON a.numero_anuncio = al.anuncio
-	LEFT JOIN BOGO.BI_Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
-	LEFT JOIN BOGO.BI_Edad e ON e.id_edad = BOGO.OBTENER_RANGO_EDAD(ai.fecha_nacimiento)
-	LEFT JOIN BOGO.BI_moneda m ON m.codigo_moneda = a.moneda
-	LEFT JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(al.fecha_de_inicio) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(al.fecha_de_inicio)) and ti.mes = MONTH(al.fecha_de_inicio)
-	LEFT JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ai.sucursal
-	LEFT JOIN BOGO.BI_Tipo_operacion tip ON tip.codigo_tipo_operacion = a.tipo_operacion
-END
-GO
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 5                                            --
@@ -662,23 +542,9 @@ EXEC BOGO.BI_migrar_ambientes;
 GO
 EXEC BOGO.BI_migrar_ubicacion;
 GO
-EXEC BOGO.BI_migrar_fecha_publicacion;
-GO
-EXEC BOGO.BI_migrar_fecha_finalizacion;
-GO
-EXEC BOGO.BI_migrar_barrios;
-GO
 EXEC BOGO.BI_migrar_Edad;
 GO
-EXEC BOGO.BI_migrar_estado_alquiler;
-GO
-EXEC BOGO.BI_migrar_estado_inmueble;
-GO
-EXEC BOGO.BI_migrar_Localidad;
-GO
 EXEC BOGO.BI_migrar_sucursal;
-GO
-EXEC BOGO.BI_migrar_Agente_inmobiliario;
 GO
 EXEC BOGO.BI_migrar_anuncios;
 GO
@@ -688,8 +554,7 @@ EXEC BOGO.BI_migrar_pago_alquiler;
 GO
 EXEC BOGO.BI_migrar_venta;
 GO
-EXEC BOGO.BI_migrar_operaciones;
-GO
+
 
 ---------------------------------------------------------------------------------------------------
 --                                            Parte 6                                            --
@@ -703,17 +568,18 @@ CREATE VIEW BOGO.v_duracion_promedio_dias_anuncio AS
 			amb.cantidad as "Cantidad ambientes",
 			tiempo.anio as "Año",
 			tiempo.cuatrimestre as "N° cuatrimestre",
-			CAST (SUM(an.duracion_anuncio)/COUNT(an.codigo_anuncio) AS INT) AS "Duracion promedio en días"
+			CAST (SUM(DATEDIFF(DAY,DATEFROMPARTS(tiempo.anio,tiempo.mes, tiempo.dia), DATEFROMPARTS(tiempo2.anio,tiempo2.mes, tiempo2.dia)))/SUM(an.cant_anuncios_segmentados) AS INT) AS "Duracion promedio en días"
 	FROM Bogo.BI_Anuncios an
-		INNER JOIN BOGO.BI_Tipo_operacion tipo_operacion ON tipo_operacion.codigo_tipo_operacion = an.codigo_tipo_operacion
-		INNER JOIN BOGO.BI_Ubicacion ubi ON ubi.codigo_ubicacion = an.codigo_ubicacion
-		INNER JOIN BOGO.BI_Ambientes amb ON amb.codigo_ambientes = an.codigo_ambientes
-		INNER JOIN BOGO.BI_Tiempo tiempo ON tiempo.codigo_tiempo = an.codigo_tiempo
-		INNER JOIN BOGO.BI_Fecha_publicacion fecha_p ON fecha_p.codigo = an.codigo_fecha_alta
-		INNER JOIN BOGO.BI_Fecha_publicacion fecha_f ON fecha_f.codigo= an.codigo_fecha_baja
+		LEFT JOIN BOGO.BI_Tipo_operacion tipo_operacion ON tipo_operacion.codigo_tipo_operacion = an.codigo_tipo_operacion
+		LEFT JOIN BOGO.BI_Ubicacion ubi ON ubi.codigo_ubicacion = an.codigo_ubicacion
+		LEFT JOIN BOGO.BI_Ambientes amb ON amb.codigo_ambientes = an.codigo_ambientes
+		LEFT JOIN BOGO.BI_Tiempo tiempo ON tiempo.codigo_tiempo = an.codigo_fecha_alta
+		LEFT JOIN BOGO.BI_Tiempo tiempo2 ON tiempo2.codigo_tiempo = an.codigo_fecha_baja
 	GROUP BY tipo_operacion.nombre, ubi.nombre_barrio, amb.cantidad, tiempo.anio, tiempo.cuatrimestre
 GO
 
+
+/*
 -- Vista 2
 CREATE VIEW BOGO.v_promedio_precio_anuncio AS
 	SELECT  tipo_operacion.nombre as "Tipo operación",
@@ -824,3 +690,4 @@ CREATE VIEW BOGO.v_monto_total_cierre_contratos_por_operacion AS
 	INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = op.codigo_moneda
 	GROUP BY tip.nombre, s.descripcion, t.cuatrimestre, m.descripcion
 GO
+*/
