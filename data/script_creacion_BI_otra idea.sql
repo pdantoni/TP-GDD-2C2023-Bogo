@@ -124,6 +124,7 @@ CREATE TABLE BOGO.BI_sucursal(
 -------------------------------------------------------
 -- TABLAS DE HECHOS
 CREATE TABLE BOGO.BI_Hechos_Anuncios(
+	codigo_anuncio int primary key identity(1,1),
 	codigo_tiempo int,
 	codigo_tipo_operacion INT,
 	codigo_tipo_inmueble INT,
@@ -134,7 +135,7 @@ CREATE TABLE BOGO.BI_Hechos_Anuncios(
 	duracion_anuncio INT,
 	precio_promedio_anuncio DECIMAL(12,2),
 	cant_anuncios_segmentados INT
-	Primary key(codigo_tiempo,codigo_tipo_operacion,codigo_tipo_inmueble,codigo_moneda,codigo_rango_superficie,codigo_ambientes,codigo_ubicacion)
+
 )
 
 CREATE TABLE BOGO.BI_Hechos_Alquileres(
@@ -164,7 +165,8 @@ CREATE TABLE BOGO.BI_Hechos_Ventas(
 	ambientes INT, 
 	tipo_moneda INT, 
 	comision INT, 
-	precio_venta INT, 
+	precio_venta_promedio_por_m2 INT,
+	precio_venta_total int ,
 	cant_ventas_segregadas INT
 )
 
@@ -175,6 +177,8 @@ CREATE TABLE BOGO.BI_Hechos_Pago_alquileres(
     aumento FLOAT,
 	cant_pagos_Segregados INT
 )
+
+
 
 -------------------------------------------------------
 -- CREACION DE PKs COMPUESTAS
@@ -215,6 +219,8 @@ ALTER TABLE BOGO.BI_Hechos_Ventas
 		FOREIGN KEY (ambientes) REFERENCES BOGO.BI_Ambientes(codigo_ambientes),
 		FOREIGN KEY (tipo_moneda) REFERENCES BOGO.BI_Moneda(codigo_moneda)
 GO
+
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -472,12 +478,13 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE BOGO.BI_migrar_hechos_ventas AS
+Create PROCEDURE BOGO.BI_migrar_hechos_ventas AS
 BEGIN
-	INSERT INTO BOGO.BI_Hechos_Ventas (tiempo, tipo_inmueble, rangom2, ubicacion, edad, sucursal, ambientes, tipo_moneda, comision, precio_venta, cant_ventas_segregadas)
+	INSERT INTO BOGO.BI_Hechos_Ventas (tiempo, tipo_inmueble, rangom2, ubicacion, edad, sucursal, ambientes, tipo_moneda, comision, precio_venta_promedio_por_m2,precio_venta_total, cant_ventas_segregadas)
 	SELECT	ti.codigo_tiempo, tipo_inmueble.codigo_tipo_inmueble, ra_super.codigo_m2, ubi.codigo_ubicacion, e.id_edad, s.codigo_sucursal, amb.codigo_ambientes,	an.moneda,
 			SUM(v.comision_inmobiliaria) AS "Comisión",
 			SUM(v.precio_venta) / SUM(inm.superficie) AS "Precio de venta por m2",
+			sum(v.precio_venta),
 			COUNT(*) AS "Cantidad de ventas segregadas"
 	FROM BOGO.venta v
 	INNER JOIN BOGO.BI_Tiempo ti ON ti.anio = Year(v.fecha_de_venta) and ti.cuatrimestre = BOGO.OBTENER_CUATRIMESTRE(MONTH(v.fecha_de_venta)) and ti.mes = MONTH(v.fecha_de_venta) and ti.dia = DAY(v.fecha_de_venta)
@@ -496,7 +503,9 @@ BEGIN
 	INNER JOIN BOGO.BI_Moneda mon on an.moneda = mon.codigo_moneda
 	GROUP BY ti.codigo_tiempo, tipo_inmueble.codigo_tipo_inmueble, ra_super.codigo_m2, ubi.codigo_ubicacion, e.id_edad, s.codigo_sucursal, amb.codigo_ambientes, an.moneda
 END			
-GO		
+GO
+
+
 
 
 ---------------------------------------------------------------------------------------------------
@@ -625,7 +634,7 @@ GO
 
 -- Vista 6
 CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
-	SELECT t.cuatrimestre, t.anio, u.nombre_localidad, ti.nombre, CONCAT('$ ', CAST(AVG(v.precio_venta) AS DECIMAL(12,2))) AS "Precio promedio m2"
+	SELECT t.cuatrimestre, t.anio, u.nombre_localidad, ti.nombre, CONCAT('$ ', CAST(AVG(v.precio_venta_promedio_por_m2) AS DECIMAL(12,2))) AS "Precio promedio m2"
 	FROM BOGO.BI_Hechos_Ventas v
 	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = v.tiempo
 	INNER JOIN BOGO.BI_Tipo_Inmueble ti ON ti.codigo_tipo_inmueble = v.tipo_inmueble
@@ -633,41 +642,76 @@ CREATE VIEW BOGO.v_precio_promedio_m2_ventas AS
 	GROUP BY t.cuatrimestre, t.anio, u.nombre_localidad, ti.nombre
 GO
 
+
 -- Vista 7
 CREATE VIEW BOGO.v_promedio_comision_segun_operacion AS
-	SELECT tip.nombre, s.descripcion, t.anio, t.cuatrimestre, CONCAT('$ ', CAST(AVG(op.comision) AS DECIMAL(12,2))) AS "Promedio comisión"
-	FROM BOGO.BI_operaciones op
-	INNER JOIN BOGO.BI_Tipo_operacion tip ON tip.codigo_tipo_operacion = op.codigo_tipo_operacion
-	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = op.codigo_sucursal
-	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = op.codigo_tiempo
-	GROUP BY tip.nombre, s.descripcion, t.anio, t.cuatrimestre
+	SELECT 'Alquiler' as "Tipo Operacion" ,s.descripcion, t.anio, t.cuatrimestre, CONCAT('$ ', CAST(sum(alq.comision)/sum(alq.cant_alquileres_segregados) AS DECIMAL(12,2))) AS "Promedio comisión"
+	FROM BOGO.BI_Hechos_Alquileres alq
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = alq.codigo_sucursal
+	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = alq.codigo_tiempo
+	GROUP BY s.descripcion, t.anio, t.cuatrimestre
+	UNION 
+	SELECT 'Venta' as "Tipo Operacion",s.descripcion, t.anio, t.cuatrimestre, CONCAT('$ ', CAST(sum(ventas.comision)/sum(ventas.cant_ventas_segregadas) AS DECIMAL(12,2))) AS "Promedio comisión"
+	FROM BOGO.BI_Hechos_Ventas ventas
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = ventas.sucursal
+	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = ventas.tiempo
+	GROUP BY s.descripcion, t.anio, t.cuatrimestre
+
 GO
-/*
--- Vista 8
+
+
+ --Vista 8
 CREATE VIEW BOGO.v_porcentaje_operaciones_concretadas AS
-    SELECT t.anio AS "Año",
-    s.descripcion AS "Sucursal",
-    e.rango AS "Rango",
-    CONCAT(COUNT(DISTINCT op.codigo_anuncio) * 100/
-    (SELECT COUNT(DISTINCT a.numero_anuncio) FROM Bogo.Anuncio a
-    INNER JOIN Bogo.Agente_inmobiliario ai ON ai.codigo_agente = a.agente_inmobiliario
-    INNER JOIN Bogo.Sucursal su ON su.codigo_sucursal = ai.sucursal
-    WHERE su.codigo_sucursal = s.codigo_sucursal and e.id_edad = Bogo.OBTENER_RANGO_EDAD(ai.fecha_nacimiento) AND YEAR(a.fecha_publicacion) = t.anio),'%') AS "Porcentaje de Operaciones Concretadas"
-    FROM Bogo.BI_operaciones op
-    INNER JOIN Bogo.BI_sucursal s ON s.codigo_sucursal = op.codigo_sucursal
-    INNER JOIN Bogo.BI_Edad e ON e.id_edad = op.codigo_edad
-    INNER JOIN Bogo.BI_Tiempo t ON t.codigo_tiempo = op.codigo_tiempo
-    GROUP BY t.anio,s.codigo_sucursal,s.descripcion,e.id_edad,e.rango
-GO
+SELECT Operacion.anio,
+Operacion.descripcion,
+Operacion.rango,
+Concat(CAST(SUM(Operacion.Cantidad)*100/(SELECT  SUM(an.cant_anuncios_segmentados)
+								FROM BOGO.BI_Hechos_Anuncios an
+								Inner JOIN BOGO.BI_Tiempo ti2 ON (ti2.codigo_tiempo = an.codigo_tiempo)
+								WHERE ti2.anio = Operacion.anio
+								GROUP BY ti2.anio) AS numeric(6,2)),'%')	as "Porcentaje de operaciones concretadas"																																																																						
+	FROM (SELECT  ti.anio, 
+			su.descripcion, 
+			ret.rango, 
+			SUM(ven.cant_ventas_segregadas) AS Cantidad
+			FROM BOGO.BI_Hechos_Ventas ven
+			left JOIN BOGO.BI_Tiempo ti ON (ti.codigo_tiempo = ven.tiempo)
+			left JOIN BOGO.BI_Sucursal su ON (su.codigo_sucursal = ven.sucursal)
+			left JOIN Bogo.BI_Edad ret ON (ret.id_edad = ven.edad)
+			GROUP BY ti.anio, 
+			su.codigo_sucursal, 
+			su.descripcion,
+			ret.rango
+			UNION 
+			SELECT t.anio AS "Año",
+			s.descripcion AS "Sucursal",
+			e.rango AS "Rango",
+			sum(a.cant_alquileres_segregados)
+			FROM Bogo.BI_Hechos_Alquileres a
+			INNER JOIN Bogo.BI_sucursal s ON s.codigo_sucursal = a.codigo_sucursal
+			INNER JOIN Bogo.BI_Edad e ON e.id_edad = a.codigo_edad_agente
+			INNER JOIN Bogo.BI_Tiempo t ON t.codigo_tiempo = a.codigo_tiempo
+			group by t.anio, 
+			s.codigo_sucursal, 
+			s.descripcion,
+			e.rango
+			) as "Operacion"
+			group by Operacion.anio,Operacion.descripcion,Operacion.rango
+go
 
 -- Vista 9
 CREATE VIEW BOGO.v_monto_total_cierre_contratos_por_operacion AS
-	SELECT tip.nombre, s.descripcion AS "Sucursal", t.cuatrimestre, m.descripcion AS "Tipo de moneda", CONCAT('$ ', CAST(SUM(op.monto_total) AS FLOAT)) AS "Monto total"
-	FROM BOGO.BI_operaciones op
-	INNER JOIN BOGO.BI_Tipo_operacion tip ON tip.codigo_tipo_operacion = op.codigo_tipo_operacion
-	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = op.codigo_sucursal
-	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = op.codigo_tiempo
-	INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = op.codigo_moneda
-	GROUP BY tip.nombre, s.descripcion, t.cuatrimestre, m.descripcion
+	SELECT 'Alquiler' as "Tipo Operacion", s.descripcion AS "Sucursal", t.cuatrimestre, m.descripcion AS "Tipo de moneda", CONCAT('$ ', CAST(SUM(alq.deposito) AS Numeric(18,2))) AS "Monto total"
+	FROM BOGO.BI_Hechos_Alquileres alq
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = alq.codigo_sucursal
+	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = alq.codigo_tiempo
+	INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = alq.codigo_moneda
+	GROUP BY s.descripcion, t.cuatrimestre, m.descripcion
+	UNION 
+	SELECT 'Venta' as "Tipo Operacion", s.descripcion AS "Sucursal", t.cuatrimestre, m.descripcion AS "Tipo de moneda", CONCAT('$ ', CAST(SUM(v.precio_venta_total) AS Numeric(18,2))) AS "Monto total"
+	FROM BOGO.BI_Hechos_Ventas v
+	INNER JOIN BOGO.BI_sucursal s ON s.codigo_sucursal = v.sucursal
+	INNER JOIN BOGO.BI_Tiempo t ON t.codigo_tiempo = v.tiempo
+	INNER JOIN BOGO.BI_Moneda m ON m.codigo_moneda = v.tipo_moneda
+	GROUP BY s.descripcion, t.cuatrimestre, m.descripcion
 GO
-*/
